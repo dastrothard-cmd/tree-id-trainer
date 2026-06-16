@@ -1,19 +1,21 @@
-TREE ID TRAINER v15.20 — AI ACCENTS, HELP TOOLTIPS AND CACHE CONTROL
+TREE ID TRAINER v15.21 — AI ACCENT + MALE/FEMALE VOICES
 
 Upload the unzipped contents from the MAIN PAGE of the GitHub repository.
 
-Adds:
-- AI Australian, British, American and German-accented English voices
-- AI voices at the top of the voice list
-- Device voices below them when supplied by the browser
-- Accent-specific local audio caches
-- Restored earlier natural Australian voice prompt
-- Faster WAV responses
-- Hover/focus help popups for the speech controls
-- Clear AI cache button
+The same Voice source list now contains:
+- AI Australian — Female
+- AI Australian — Male
+- AI British — Female
+- AI British — Male
+- AI American — Female
+- AI American — Male
+- AI German accent — Female
+- AI German accent — Male
+- Device voices below those, when supplied by the browser
 
-Clear AI cache removes recordings only. It does not remove trees, settings,
-scores or counters.
+British and German options now use different base voices and stricter accent
+instructions. The AI cache version has changed, so older incorrectly accented
+recordings will not be reused.
 
 Changed:
 - public/index.html

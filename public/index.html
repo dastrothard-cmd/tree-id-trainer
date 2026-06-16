@@ -503,8 +503,8 @@ body.theme-journal .ui-help-bubble{
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Tree ID Trainer">
-<meta name="tree-id-trainer-version" content="15.20-ai-accent-voices">
-<meta name="tree-id-trainer-build" content="15.20">
+<meta name="tree-id-trainer-version" content="15.21-ai-accent-gender-voices">
+<meta name="tree-id-trainer-build" content="15.21">
 
 </head>
 <body>
@@ -705,8 +705,8 @@ body.theme-journal .ui-help-bubble{
     <div class="row" style="margin-top:10px">
       <div>
         <label>Voice source</label>
-        <select id="speechVoice" title="AI accents appear first. Device voices appear below when this browser provides them.">
-          <option value="__ai_voice__:australian">AI voice — Australian</option>
+        <select id="speechVoice" title="AI accent and voice options appear first. Device voices appear below when this browser provides them.">
+          <option value="__ai_voice__:australian_female">AI Australian — Female</option>
         </select>
       </div>
       <div>
@@ -724,13 +724,13 @@ body.theme-journal .ui-help-bubble{
         data-help="Asks this browser to reload its available device voices. Device-voice support varies between browsers and machines."
         title="Reload the device voices supplied by this browser.">↻ Reload device voices</button>
       <button class="secondary help-tip" id="speechCacheList" type="button"
-        data-help="Creates and saves recordings for every common name, binomial, genus and family in your current list using the selected AI accent. This uses internet and API credit once; saved recordings then play from this device."
+        data-help="Creates and saves recordings for every common name, binomial, genus and family in your current list using the selected AI accent and voice. This uses internet and API credit once; saved recordings then play from this device."
         title="Save the current tree list as an offline voice pack in the selected AI accent.">⬇ Cache current list</button>
       <button class="secondary help-tip" id="speechClearCache" type="button"
         data-help="Deletes saved AI recordings from this browser or device only. It does not delete trees, scores, settings or counters. Recordings will be generated again when needed."
         title="Clear saved AI recordings without deleting app data.">🗑 Clear AI cache</button>
     </div>
-    <div class="hint" id="speechStatus">AI accents work across devices and save each recording after its first use.</div>
+    <div class="hint" id="speechStatus">AI accent voices work across devices and save each recording after its first use.</div>
     <div class="stats"><span class="stat" id="voiceCacheStat">AI voice cache: checking…</span></div>
     <div class="hint" id="cloudVoiceDisclosure" style="font-size:11px;margin-top:4px">AI voices are generated, not human recordings. Internet is needed only the first time each name is recorded in the selected accent on this device; saved recordings then play faster and can work offline. Device voices remain optional where supported by the browser.</div>
     <div class="stats"><span class="stat" id="flashPosition">Card 1</span><span class="stat" id="flashKnown">Known: 0</span><span class="stat" id="flashAgain">Again: 0</span></div>
@@ -807,7 +807,7 @@ body.theme-journal .ui-help-bubble{
   </div>
 </section>
 
-<div class="footer-note">Hosted Edition · v15.20 · Your tree list and settings stay in this browser on this device.</div>
+<div class="footer-note">Hosted Edition · v15.21 · Your tree list and settings stay in this browser on this device.</div>
 </main>
 
 <div class="update-banner" id="updateBanner">
@@ -878,18 +878,46 @@ document.getElementById("homeBtn").addEventListener("click",()=>showView("home")
 let flashDeck=[], flashIndex=0, flashKnown=0, flashAgain=0;
 const SPEECH_KEY = "tree-id-trainer-speech-v7";
 const AI_VOICE_PREFIX = "__ai_voice__:";
-const DEFAULT_AI_PROFILE = "australian";
+const DEFAULT_AI_PROFILE = "australian_female";
 const AI_VOICE_PROFILES = {
-  australian:{id:"australian",label:"AI voice — Australian"},
-  british:{id:"british",label:"AI voice — British"},
-  american:{id:"american",label:"AI voice — American"},
-  german:{id:"german",label:"AI voice — German-accented English"}
+  australian_female:{
+    id:"australian_female",
+    label:"AI Australian — Female"
+  },
+  australian_male:{
+    id:"australian_male",
+    label:"AI Australian — Male"
+  },
+  british_female:{
+    id:"british_female",
+    label:"AI British — Female"
+  },
+  british_male:{
+    id:"british_male",
+    label:"AI British — Male"
+  },
+  american_female:{
+    id:"american_female",
+    label:"AI American — Female"
+  },
+  american_male:{
+    id:"american_male",
+    label:"AI American — Male"
+  },
+  german_female:{
+    id:"german_female",
+    label:"AI German accent — Female"
+  },
+  german_male:{
+    id:"german_male",
+    label:"AI German accent — Male"
+  }
 };
 const DEVICE_DEFAULT_VALUE = "__device_default__";
 const AI_VOICE_DB = "tree-id-trainer-app-voice-v1";
 const AI_VOICE_STORE = "clips";
-const AI_VOICE_QUEUE_KEY = "tree-id-trainer-ai-voice-queue-v2";
-const AI_VOICE_FORMAT_VERSION = "natural-ai-accents-v1";
+const AI_VOICE_QUEUE_KEY = "tree-id-trainer-ai-voice-queue-v3";
+const AI_VOICE_FORMAT_VERSION = "natural-ai-accent-gender-v2";
 
 const previousSpeechSettings = loadJSON(
   "tree-id-trainer-speech-v6",
@@ -918,6 +946,22 @@ function aiProfileLabel(profileId){
 
 let previousVoice=String(previousSpeechSettings.voiceURI||"");
 let previousAiProfile=String(previousSpeechSettings.aiProfile||"");
+
+const LEGACY_AI_PROFILE_MAP={
+  australian:"australian_female",
+  british:"british_female",
+  american:"american_female",
+  german:"german_female"
+};
+
+const legacyValueProfile=aiProfileFromValue(previousVoice);
+if(LEGACY_AI_PROFILE_MAP[previousAiProfile]){
+  previousAiProfile=LEGACY_AI_PROFILE_MAP[previousAiProfile];
+}
+if(legacyValueProfile&&LEGACY_AI_PROFILE_MAP[legacyValueProfile]){
+  previousAiProfile=LEGACY_AI_PROFILE_MAP[legacyValueProfile];
+  previousVoice=aiVoiceValue(previousAiProfile);
+}
 if(!AI_VOICE_PROFILES[previousAiProfile]){
   previousAiProfile=aiProfileFromValue(previousVoice)||DEFAULT_AI_PROFILE;
 }
@@ -1157,7 +1201,7 @@ async function updateVoiceCacheStat(){
   if(!el)return;
   const profile=activeAiProfile();
   const count=await countCachedAiVoices(profile);
-  const accent=AI_VOICE_PROFILES[profile].label.replace("AI voice — ","");
+  const accent=AI_VOICE_PROFILES[profile].label.replace(/^AI\s+/,"");
   if(voicePackProgress&&voicePackProgress.profile===profile){
     el.textContent=`${accent} AI cache: ${count} saved · pack ${voicePackProgress.done}/${voicePackProgress.total}`;
   }else{
@@ -1289,7 +1333,7 @@ async function speakWithAiVoice(text,profileId=activeAiProfile()){
 
   try{
     const cached=await getCachedAiVoice(clean,profile);
-    const accent=AI_VOICE_PROFILES[profile].label.replace("AI voice — ","");
+    const accent=AI_VOICE_PROFILES[profile].label.replace(/^AI\s+/,"");
     setSpeechStatus(
       cached
         ? `Playing saved ${accent} AI voice…`
