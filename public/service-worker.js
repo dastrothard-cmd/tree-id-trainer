@@ -1,4 +1,4 @@
-const CACHE_NAME="tree-id-trainer-hosted-v4";
+const CACHE_NAME="tree-id-trainer-hosted-v6";
 const CORE=[
   "/",
   "/index.html",
