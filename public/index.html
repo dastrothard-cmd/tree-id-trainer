@@ -493,6 +493,98 @@ body.theme-journal .ui-help-bubble{
   background:#fff6e2;color:#3e2f1f;border-color:rgba(114,82,48,.3)
 }
 
+
+.speech-compact-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(122px,.45fr);
+  gap:10px;
+  align-items:end;
+  margin-top:10px;
+}
+.speech-compact-row>div{min-width:0}
+.speech-compact-row select{white-space:nowrap;text-overflow:ellipsis}
+.speech-status-line{
+  margin:7px 0 0;
+  font-size:12px;
+  line-height:1.3;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.speech-tools{
+  margin-top:7px;
+  border-top:1px solid var(--line);
+}
+.speech-tools summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:36px;
+  padding:7px 2px 3px;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  list-style:none;
+  user-select:none;
+}
+.speech-tools summary::-webkit-details-marker{display:none}
+.speech-tools summary::after{
+  content:"▾";
+  font-size:15px;
+  transition:transform .18s;
+}
+.speech-tools[open] summary::after{transform:rotate(180deg)}
+.speech-tools-body{
+  padding-top:7px;
+  animation:speechToolsOpen .15s ease-out;
+}
+@keyframes speechToolsOpen{
+  from{opacity:0;transform:translateY(-3px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.speech-tool-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.speech-tool-grid button{
+  width:100%;
+  min-width:0;
+  padding:9px 10px;
+  font-size:12px;
+}
+.speech-tools .stats{margin:8px 0 4px}
+.speech-tools .stat{font-size:12px}
+.speech-disclosure{
+  font-size:11px;
+  margin:5px 0 2px;
+  line-height:1.4;
+}
+@media(max-width:520px){
+  #flash>.panel{padding:12px}
+  .speech-compact-row{
+    grid-template-columns:minmax(0,1fr) 112px;
+    gap:8px;
+    margin-top:8px;
+  }
+  .speech-compact-row label{font-size:11px;margin-bottom:4px}
+  .speech-compact-row select,
+  .speech-compact-row button{padding:9px 8px}
+  .speech-status-line{margin-top:5px}
+  .speech-tools{margin-top:5px}
+  .speech-tools summary{min-height:32px;padding-top:5px}
+}
+@media(max-width:360px){
+  .speech-compact-row{grid-template-columns:minmax(0,1fr) 102px}
+  .speech-toggle-text{font-size:0}
+  .speech-toggle-text::after{
+    content:"Speech";
+    font-size:12px;
+  }
+}
+
 </style>
 
 <link rel="manifest" href="/app.webmanifest">
@@ -503,8 +595,8 @@ body.theme-journal .ui-help-bubble{
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Tree ID Trainer">
-<meta name="tree-id-trainer-version" content="15.21-ai-accent-gender-voices">
-<meta name="tree-id-trainer-build" content="15.21">
+<meta name="tree-id-trainer-version" content="15.22-compact-voice-controls">
+<meta name="tree-id-trainer-build" content="15.22">
 
 </head>
 <body>
@@ -702,7 +794,7 @@ body.theme-journal .ui-help-bubble{
       </select></div>
       <div><label>Family filter</label><select id="familyFilter"><option value="">All families</option></select></div>
     </div>
-    <div class="row" style="margin-top:10px">
+    <div class="speech-compact-row">
       <div>
         <label>Voice source</label>
         <select id="speechVoice" title="AI accent and voice options appear first. Device voices appear below when this browser provides them.">
@@ -710,29 +802,37 @@ body.theme-journal .ui-help-bubble{
         </select>
       </div>
       <div>
-        <label>Read cards aloud</label>
-        <button class="secondary help-tip" id="speechToggle" type="button" style="width:100%"
+        <label>Read aloud</label>
+        <button class="secondary help-tip speech-toggle-text" id="speechToggle" type="button" style="width:100%"
           data-help="Turns automatic reading on or off. When on, the front is read when a card appears and the answer is read when you flip it."
           title="Turns automatic card reading on or off.">🔇 Speech off</button>
       </div>
     </div>
-    <div class="row" style="margin-top:10px">
-      <button class="secondary help-tip" id="speechTest" type="button"
-        data-help="Plays a short sample using the currently selected AI accent or device voice."
-        title="Test the currently selected voice.">▶ Test selected voice</button>
-      <button class="secondary help-tip" id="speechRefresh" type="button"
-        data-help="Asks this browser to reload its available device voices. Device-voice support varies between browsers and machines."
-        title="Reload the device voices supplied by this browser.">↻ Reload device voices</button>
-      <button class="secondary help-tip" id="speechCacheList" type="button"
-        data-help="Creates and saves recordings for every common name, binomial, genus and family in your current list using the selected AI accent and voice. This uses internet and API credit once; saved recordings then play from this device."
-        title="Save the current tree list as an offline voice pack in the selected AI accent.">⬇ Cache current list</button>
-      <button class="secondary help-tip" id="speechClearCache" type="button"
-        data-help="Deletes saved AI recordings from this browser or device only. It does not delete trees, scores, settings or counters. Recordings will be generated again when needed."
-        title="Clear saved AI recordings without deleting app data.">🗑 Clear AI cache</button>
-    </div>
-    <div class="hint" id="speechStatus">AI accent voices work across devices and save each recording after its first use.</div>
-    <div class="stats"><span class="stat" id="voiceCacheStat">AI voice cache: checking…</span></div>
-    <div class="hint" id="cloudVoiceDisclosure" style="font-size:11px;margin-top:4px">AI voices are generated, not human recordings. Internet is needed only the first time each name is recorded in the selected accent on this device; saved recordings then play faster and can work offline. Device voices remain optional where supported by the browser.</div>
+
+    <div class="hint speech-status-line" id="speechStatus"
+      title="AI accent voices work across devices and save each recording after its first use.">AI accent voices work across devices and save each recording after its first use.</div>
+
+    <details class="speech-tools" id="speechTools">
+      <summary>Voice tools &amp; offline cache</summary>
+      <div class="speech-tools-body">
+        <div class="speech-tool-grid">
+          <button class="secondary help-tip" id="speechTest" type="button"
+            data-help="Plays a short sample using the currently selected AI accent or device voice."
+            title="Test the currently selected voice.">▶ Test voice</button>
+          <button class="secondary help-tip" id="speechRefresh" type="button"
+            data-help="Asks this browser to reload its available device voices. Device-voice support varies between browsers and machines."
+            title="Reload the device voices supplied by this browser.">↻ Reload voices</button>
+          <button class="secondary help-tip" id="speechCacheList" type="button"
+            data-help="Creates and saves recordings for every common name, binomial, genus and family in your current list using the selected AI accent and voice. This uses internet and API credit once; saved recordings then play from this device."
+            title="Save the current tree list as an offline voice pack in the selected AI accent.">⬇ Cache current list</button>
+          <button class="secondary help-tip" id="speechClearCache" type="button"
+            data-help="Deletes saved AI recordings from this browser or device only. It does not delete trees, scores, settings or counters. Recordings will be generated again when needed."
+            title="Clear saved AI recordings without deleting app data.">🗑 Clear AI cache</button>
+        </div>
+        <div class="stats"><span class="stat" id="voiceCacheStat">AI voice cache: checking…</span></div>
+        <div class="hint speech-disclosure" id="cloudVoiceDisclosure">AI voices are generated, not human recordings. Internet is needed only the first time each name is recorded in the selected accent on this device; saved recordings then play faster and can work offline. Device voices remain optional where supported by the browser.</div>
+      </div>
+    </details>
     <div class="stats"><span class="stat" id="flashPosition">Card 1</span><span class="stat" id="flashKnown">Known: 0</span><span class="stat" id="flashAgain">Again: 0</span></div>
     <div class="progressbar"><div id="flashProgress"></div></div>
   </div>
@@ -807,7 +907,7 @@ body.theme-journal .ui-help-bubble{
   </div>
 </section>
 
-<div class="footer-note">Hosted Edition · v15.21 · Your tree list and settings stay in this browser on this device.</div>
+<div class="footer-note">Hosted Edition · v15.22 · Your tree list and settings stay in this browser on this device.</div>
 </main>
 
 <div class="update-banner" id="updateBanner">
@@ -1028,7 +1128,10 @@ function aiVoiceSelected(){
 }
 function setSpeechStatus(text){
   const el=document.getElementById("speechStatus");
-  if(el)el.textContent=text;
+  if(el){
+    el.textContent=text;
+    el.title=text;
+  }
 }
 function saveSpeechSettings(){
   localStorage.setItem(SPEECH_KEY,JSON.stringify(speechSettings));

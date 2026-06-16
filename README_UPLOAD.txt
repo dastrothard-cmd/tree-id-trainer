@@ -1,23 +1,15 @@
-TREE ID TRAINER v15.21 — AI ACCENT + MALE/FEMALE VOICES
+TREE ID TRAINER v15.22 — COMPACT MOBILE VOICE CONTROLS
 
 Upload the unzipped contents from the MAIN PAGE of the GitHub repository.
 
-The same Voice source list now contains:
-- AI Australian — Female
-- AI Australian — Male
-- AI British — Female
-- AI British — Male
-- AI American — Female
-- AI American — Male
-- AI German accent — Female
-- AI German accent — Male
-- Device voices below those, when supplied by the browser
-
-British and German options now use different base voices and stricter accent
-instructions. The AI cache version has changed, so older incorrectly accented
-recordings will not be reused.
+Changes:
+- Voice selector and Speech on/off now share one compact row.
+- Long status text is condensed to one line.
+- Test, reload, cache and clear controls are inside a collapsible
+  “Voice tools & offline cache” section.
+- All voice features and cached recordings are preserved.
+- No artwork or speech profiles were changed.
 
 Changed:
 - public/index.html
 - public/service-worker.js
-- api/speech.js
