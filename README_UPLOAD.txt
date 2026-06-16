@@ -1,14 +1,13 @@
-TREE ID TRAINER v15.22 — COMPACT MOBILE VOICE CONTROLS
+TREE ID TRAINER v15.23 — TRUE COMPACT VOICE CONTROLS
 
 Upload the unzipped contents from the MAIN PAGE of the GitHub repository.
 
-Changes:
-- Voice selector and Speech on/off now share one compact row.
-- Long status text is condensed to one line.
-- Test, reload, cache and clear controls are inside a collapsible
-  “Voice tools & offline cache” section.
-- All voice features and cached recordings are preserved.
-- No artwork or speech profiles were changed.
+Fixes:
+- Removes the visible information icon from voice-control buttons.
+- Keeps hover and keyboard-focus explanations through the hidden popup system.
+- Changes the read-aloud toggle to compact “Off / On” wording.
+- Hard-limits the toggle and voice selector to 38 px high.
+- Stops JavaScript from re-adding the old help-icon class.
 
 Changed:
 - public/index.html

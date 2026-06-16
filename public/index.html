@@ -454,19 +454,9 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
 
 .help-tip{
   position:relative;
-  padding-right:34px!important;
   overflow:visible;
 }
-.help-tip::after{
-  content:"ⓘ";
-  position:absolute;
-  right:10px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:13px;
-  font-weight:850;
-  opacity:.72;
-}
+.help-tip::after{content:none!important;display:none!important}
 .ui-help-bubble{
   position:fixed;
   left:0;
@@ -502,6 +492,25 @@ body.theme-journal .ui-help-bubble{
   margin-top:10px;
 }
 .speech-compact-row>div{min-width:0}
+
+.speech-compact-row select,
+.speech-compact-row #speechToggle{
+  height:38px!important;
+  min-height:38px!important;
+  max-height:38px!important;
+  padding:7px 9px!important;
+  line-height:1!important;
+}
+.speech-compact-row #speechToggle{
+  white-space:nowrap!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:13px;
+}
+.speech-tool-grid .help-tip{
+  padding:8px 9px!important;
+}
+
 .speech-compact-row select{white-space:nowrap;text-overflow:ellipsis}
 .speech-status-line{
   margin:7px 0 0;
@@ -577,12 +586,8 @@ body.theme-journal .ui-help-bubble{
   .speech-tools summary{min-height:32px;padding-top:5px}
 }
 @media(max-width:360px){
-  .speech-compact-row{grid-template-columns:minmax(0,1fr) 102px}
-  .speech-toggle-text{font-size:0}
-  .speech-toggle-text::after{
-    content:"Speech";
-    font-size:12px;
-  }
+  .speech-compact-row{grid-template-columns:minmax(0,1fr) 88px}
+  .speech-compact-row #speechToggle{font-size:12px}
 }
 
 </style>
@@ -595,8 +600,8 @@ body.theme-journal .ui-help-bubble{
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Tree ID Trainer">
-<meta name="tree-id-trainer-version" content="15.22-compact-voice-controls">
-<meta name="tree-id-trainer-build" content="15.22">
+<meta name="tree-id-trainer-version" content="15.23-true-compact-voice-controls">
+<meta name="tree-id-trainer-build" content="15.23">
 
 </head>
 <body>
@@ -803,9 +808,9 @@ body.theme-journal .ui-help-bubble{
       </div>
       <div>
         <label>Read aloud</label>
-        <button class="secondary help-tip speech-toggle-text" id="speechToggle" type="button" style="width:100%"
+        <button class="secondary" id="speechToggle" type="button" style="width:100%"
           data-help="Turns automatic reading on or off. When on, the front is read when a card appears and the answer is read when you flip it."
-          title="Turns automatic card reading on or off.">🔇 Speech off</button>
+          title="Turns automatic card reading on or off.">🔇 Off</button>
       </div>
     </div>
 
@@ -907,7 +912,7 @@ body.theme-journal .ui-help-bubble{
   </div>
 </section>
 
-<div class="footer-note">Hosted Edition · v15.22 · Your tree list and settings stay in this browser on this device.</div>
+<div class="footer-note">Hosted Edition · v15.23 · Your tree list and settings stay in this browser on this device.</div>
 </main>
 
 <div class="update-banner" id="updateBanner">
@@ -1649,8 +1654,8 @@ function renderSpeechControls(){
 
   toggle.disabled=false;
   test.disabled=false;
-  toggle.textContent=speechSettings.enabled?"🔊 Speech on":"🔇 Speech off";
-  toggle.className=(speechSettings.enabled?"primary":"secondary")+" help-tip";
+  toggle.textContent=speechSettings.enabled?"🔊 On":"🔇 Off";
+  toggle.className=speechSettings.enabled?"primary":"secondary";
 
   let options='<optgroup label="AI accent voices">';
   options+=Object.values(AI_VOICE_PROFILES).map(profile=>
