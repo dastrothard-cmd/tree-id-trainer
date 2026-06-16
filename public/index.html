@@ -10,20 +10,61 @@
   --bg:#eef3ed;--panel:#ffffff;--ink:#173126;--muted:#627268;
   --green:#21633f;--green2:#2f8055;--pale:#dcebdd;--gold:#d6a83f;
   --bad:#b84a45;--line:#d7e0d8;--shadow:0 8px 24px rgba(24,55,38,.10);
+  --header-art:url('/header-art.png');--hero-art:url('/header-art.png');
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 button:disabled{opacity:.45;cursor:not-allowed}
-header{position:sticky;top:0;z-index:5;background:#173d2a;color:#fff;padding:14px 16px 12px;box-shadow:0 2px 12px rgba(0,0,0,.18)}
-.header-row{max-width:900px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
-h1{font-size:20px;margin:0}.subtitle{font-size:12px;opacity:.78;margin-top:2px}
-.home-btn{border:1px solid rgba(255,255,255,.35);background:transparent;color:white;border-radius:10px;padding:9px 12px}
+header{
+  position:sticky;top:0;z-index:5;
+  color:#fff;padding:14px 16px 12px;box-shadow:0 8px 22px rgba(0,0,0,.26);
+  background:
+    linear-gradient(180deg,rgba(6,10,9,.18),rgba(8,12,10,.62)),
+    linear-gradient(90deg,rgba(12,18,15,.96),rgba(17,28,22,.82) 35%,rgba(20,30,24,.74) 65%,rgba(13,19,16,.9)),
+    var(--header-art);
+  background-size:cover;
+  background-position:center 28%;
+  border-bottom:1px solid rgba(212,184,115,.20)
+}
+.header-row{max-width:900px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.header-logo{
+  width:52px;height:52px;border-radius:14px;flex:0 0 52px;object-fit:cover;
+  box-shadow:0 8px 18px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.18);
+  border:1px solid rgba(223,196,133,.34);background:#1b251f
+}
+.brand-copy{min-width:0}
+h1{font-size:21px;margin:0;line-height:1.05;text-shadow:0 1px 4px rgba(0,0,0,.42)}
+.header-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#e7d8ae;opacity:.95;margin-top:2px}
+.subtitle{font-size:12px;opacity:.84;margin-top:3px;color:#e7efea}
+.home-btn{
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.10);backdrop-filter:blur(4px);
+  color:white;border-radius:12px;padding:9px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)
+}
 main{max-width:900px;margin:auto;padding:16px 14px 42px}
 .view{display:none}.view.active{display:block}
-.hero{background:linear-gradient(135deg,#173d2a,#2f8055);color:white;border-radius:20px;padding:22px 18px;box-shadow:var(--shadow);margin-bottom:15px}
-.hero h2{margin:0 0 6px;font-size:28px}.hero p{margin:0;opacity:.86}
+.hero{
+  position:relative;overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(12,18,15,.28),rgba(10,14,12,.62)),
+    var(--hero-art);
+  background-size:cover;
+  background-position:center 34%;
+  color:white;border-radius:22px;padding:24px 18px;box-shadow:var(--shadow);margin-bottom:15px;
+  border:1px solid rgba(212,184,115,.18)
+}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 22% 22%, rgba(255,230,170,.10), transparent 18%),
+    linear-gradient(135deg, rgba(255,255,255,.04), transparent 34%);
+}
+.hero > *{position:relative;z-index:1}
+.hero h2{margin:0 0 6px;font-size:29px;text-shadow:0 2px 8px rgba(0,0,0,.38)}
+.hero p{margin:0;opacity:.92;color:#ecf0ec}
 .menu-grid{display:grid;grid-template-columns:1fr;gap:12px}
 .menu-card{width:100%;text-align:left;border:0;background:var(--panel);border-radius:17px;padding:18px;box-shadow:var(--shadow);color:var(--ink)}
 .menu-card:active{transform:scale(.99)}
@@ -294,9 +335,51 @@ body.theme-reddirt .data-table th{background:#43261e;color:#f0d9c7;box-shadow:0 
 body.theme-reddirt .tutorial-number{background:#8b5d3b;color:#fff}
 body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
 
+
+/* v15.9 themed art */
+.mode-card{padding:0;overflow:hidden}
+.mode-copy{display:block;padding:17px 18px;text-align:left}
+.mode-art{display:none;width:100%;height:150px;object-fit:cover;object-position:center;border-bottom:1px solid var(--line)}
+body.has-theme-art .mode-art{display:block}
+body.has-theme-art .mode-card .icon{display:none}
+body.has-theme-art .mode-card{box-shadow:0 14px 28px rgba(0,0,0,.22)}
+.visit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 8px}
+.visit-stat{padding:13px 10px;border-radius:14px;background:var(--pale);border:1px solid var(--line)}
+.visit-stat span{display:block;font-size:28px;font-weight:900;line-height:1}
+.visit-stat small{display:block;margin-top:6px;color:var(--muted);font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.06em}
+
+body.theme-mystical header{
+  background:linear-gradient(180deg,rgba(4,8,10,.24),rgba(6,12,12,.68)),linear-gradient(90deg,rgba(4,8,10,.92),rgba(10,22,20,.62) 55%,rgba(4,8,10,.78)),var(--header-art)!important;
+  background-size:cover!important;background-position:center 38%!important
+}
+body.theme-mystical .hero{background:linear-gradient(180deg,rgba(5,9,10,.18),rgba(4,9,9,.60)),var(--hero-art)!important;background-size:cover!important;background-position:center 46%!important}
+body.theme-journal header{
+  background:linear-gradient(90deg,rgba(66,43,24,.93),rgba(81,56,34,.72) 55%,rgba(68,43,23,.84)),var(--header-art)!important;
+  background-size:cover!important;background-position:center 46%!important
+}
+body.theme-journal .hero{background:linear-gradient(90deg,rgba(75,49,27,.58),rgba(69,42,21,.34),rgba(72,46,26,.58)),var(--hero-art)!important;background-size:cover!important;background-position:center!important;color:#fffaf0!important}
+body.theme-moonlit header{
+  background:linear-gradient(180deg,rgba(4,9,22,.22),rgba(4,9,20,.68)),linear-gradient(90deg,rgba(4,9,20,.90),rgba(10,28,48,.58) 58%,rgba(4,9,20,.78)),var(--header-art)!important;
+  background-size:cover!important;background-position:center 40%!important
+}
+body.theme-moonlit .hero{background:linear-gradient(180deg,rgba(4,9,22,.16),rgba(4,9,20,.62)),var(--hero-art)!important;background-size:cover!important;background-position:center 45%!important}
+body.theme-reddirt header{
+  background:linear-gradient(180deg,rgba(45,20,12,.18),rgba(41,18,10,.68)),linear-gradient(90deg,rgba(48,22,14,.90),rgba(79,38,22,.56) 58%,rgba(49,22,13,.78)),var(--header-art)!important;
+  background-size:cover!important;background-position:center 45%!important
+}
+body.theme-reddirt .hero{background:linear-gradient(180deg,rgba(48,21,12,.14),rgba(45,19,11,.58)),var(--hero-art)!important;background-size:cover!important;background-position:center 46%!important}
+body.theme-journal .visit-stat{background:#f3e6cb}
+body.theme-mystical .visit-stat{background:#242d25;border-color:rgba(183,141,74,.14)}
+body.theme-moonlit .visit-stat{background:#20314a;border-color:rgba(150,190,255,.12)}
+body.theme-reddirt .visit-stat{background:#6a4030;border-color:rgba(246,188,123,.12)}
+@media(max-width:560px){.mode-art{height:122px}.mode-copy{padding:15px 16px}}
+
 </style>
 
 <link rel="manifest" href="/app.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/icons/favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -306,7 +389,14 @@ body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
 <body>
 <header>
   <div class="header-row">
-    <div><h1>🌳 Tree ID Trainer</h1><div class="subtitle" id="headerCount"></div></div>
+    <div class="brand">
+      <img id="headerLogo" class="header-logo" src="/icons/icon-192.png" alt="Tree ID Trainer logo">
+      <div class="brand-copy">
+        <h1>Tree ID Trainer</h1>
+        <div class="header-tag">Australian tree study</div>
+        <div class="subtitle" id="headerCount"></div>
+      </div>
+    </div>
     <button class="home-btn" id="homeBtn" type="button">Home</button>
   </div>
 </header>
@@ -314,7 +404,7 @@ body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
 <section id="home" class="view active">
   <div class="hero">
     <h2>Learn the tree list.</h2>
-    <p>Works offline. Tap a mode and start.</p>
+    <p>Australian tree study with a richer look. Works offline. Tap a mode and start.</p>
   </div>
 
   <div class="panel install-panel" id="installPanel">
@@ -326,10 +416,10 @@ body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
   </div>
 
   <div class="menu-grid">
-    <button class="menu-card" data-go="flash"><span class="icon">🗂️</span><strong>Flashcards</strong><span>Common, binomial, genus and family study cards.</span></button>
-    <button class="menu-card" data-go="familyGame"><span class="icon">🌿</span><strong>Family ↔ Genus</strong><span>Connect each family with a genus that belongs in it.</span></button>
-    <button class="menu-card" data-go="nameGame"><span class="icon">🔗</span><strong>Binomial ↔ Common</strong><span>Match scientific names to common names.</span></button>
-    <button class="menu-card" data-go="tutorial"><span class="icon">❓</span><strong>How to use this app</strong><span>A quick guide to every study mode and control.</span></button>
+    <button class="menu-card mode-card" data-go="flash"><img class="mode-art" data-mode-art="flash" alt=""><span class="mode-copy"><span class="icon">🗂️</span><strong>Flashcards</strong><span>Common, binomial, genus and family study cards.</span></span></button>
+    <button class="menu-card mode-card" data-go="familyGame"><img class="mode-art" data-mode-art="family" alt=""><span class="mode-copy"><span class="icon">🌿</span><strong>Family ↔ Genus</strong><span>Connect each family with a genus that belongs in it.</span></span></button>
+    <button class="menu-card mode-card" data-go="nameGame"><img class="mode-art" data-mode-art="name" alt=""><span class="mode-copy"><span class="icon">🔗</span><strong>Binomial ↔ Common</strong><span>Match scientific names to common names.</span></span></button>
+    <button class="menu-card mode-card" data-go="tutorial"><img class="mode-art" data-mode-art="tutorial" alt=""><span class="mode-copy"><span class="icon">❓</span><strong>How to use this app</strong><span>A quick guide to every study mode and control.</span></span></button>
   </div>
 
   <div class="panel" style="margin-top:14px">
@@ -395,6 +485,15 @@ body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
     <div style="margin-top:6px">
       <a href="mailto:dastrothard@gmail.com?subject=Tree%20ID%20Trainer%20feedback" style="color:var(--green);font-weight:750;text-decoration:none">dastrothard@gmail.com</a>
     </div>
+  </div>
+
+  <div class="panel visit-panel" style="margin-top:14px;text-align:center">
+    <strong>App visits</strong>
+    <div class="visit-grid">
+      <div class="visit-stat"><span id="globalVisits">—</span><small>Global</small></div>
+      <div class="visit-stat"><span id="localVisits">0</span><small>This device</small></div>
+    </div>
+    <div class="hint" id="visitStatus">Counting one visit per browser session.</div>
   </div>
 </section>
 
@@ -1334,16 +1433,28 @@ function initAI(){
 
 const THEME_KEY = "tree-id-trainer-theme-v1";
 const THEMES = ["default","mystical","journal","moonlit","reddirt"];
+const THEME_ASSETS = {
+  default:{header:"/header-art.png",hero:"/header-art.png",logo:"/icons/icon-192.png",modes:null},
+  mystical:{header:"/theme-assets/mystical/header.webp",hero:"/theme-assets/mystical/header.webp",logo:"/theme-assets/mystical/logo.webp",modes:{flash:"/theme-assets/mystical/flash.webp",family:"/theme-assets/mystical/family.webp",name:"/theme-assets/mystical/name.webp",tutorial:"/theme-assets/mystical/tutorial.webp"}},
+  journal:{header:"/theme-assets/journal/header.webp",hero:"/theme-assets/journal/header.webp",logo:"/theme-assets/journal/logo.webp",modes:{flash:"/theme-assets/journal/flash.webp",family:"/theme-assets/journal/family.webp",name:"/theme-assets/journal/name.webp",tutorial:"/theme-assets/journal/tutorial.webp"}},
+  moonlit:{header:"/theme-assets/moonlit/header.webp",hero:"/theme-assets/moonlit/header.webp",logo:"/theme-assets/moonlit/logo.webp",modes:{flash:"/theme-assets/moonlit/flash.webp",family:"/theme-assets/moonlit/family.webp",name:"/theme-assets/moonlit/name.webp",tutorial:"/theme-assets/moonlit/tutorial.webp"}},
+  reddirt:{header:"/theme-assets/reddirt/header.webp",hero:"/theme-assets/reddirt/header.webp",logo:"/theme-assets/reddirt/logo.webp",modes:{flash:"/theme-assets/reddirt/flash.webp",family:"/theme-assets/reddirt/family.webp",name:"/theme-assets/reddirt/name.webp",tutorial:"/theme-assets/reddirt/tutorial.webp"}}
+};
 
 function applyTheme(theme){
   if(!THEMES.includes(theme)) theme = "default";
   document.body.classList.remove("theme-mystical","theme-journal","theme-moonlit","theme-reddirt");
-  if(theme !== "default"){
-    if(theme === "mystical") document.body.classList.add("theme-mystical");
-    if(theme === "journal") document.body.classList.add("theme-journal");
-    if(theme === "moonlit") document.body.classList.add("theme-moonlit");
-    if(theme === "reddirt") document.body.classList.add("theme-reddirt");
-  }
+  if(theme !== "default") document.body.classList.add(`theme-${theme}`);
+  const assets = THEME_ASSETS[theme] || THEME_ASSETS.default;
+  document.documentElement.style.setProperty("--header-art", `url('${assets.header}')`);
+  document.documentElement.style.setProperty("--hero-art", `url('${assets.hero}')`);
+  const logo = document.getElementById("headerLogo");
+  if(logo) logo.src = assets.logo;
+  document.body.classList.toggle("has-theme-art", Boolean(assets.modes));
+  document.querySelectorAll("[data-mode-art]").forEach(img=>{
+    const src = assets.modes?.[img.dataset.modeArt];
+    if(src){img.src=src;}else{img.removeAttribute("src");}
+  });
   localStorage.setItem(THEME_KEY, theme);
   const sel = document.getElementById("themeSelect");
   if(sel) sel.value = theme;
@@ -1356,6 +1467,38 @@ function initTheme(){
   if(sel) sel.addEventListener("change", e => applyTheme(e.target.value));
 }
 
+
+const LOCAL_VISIT_KEY="tree-id-trainer-local-visits-v2";
+const SESSION_VISIT_KEY="tree-id-trainer-counted-session-v2";
+async function initVisitCounters(){
+  const localEl=document.getElementById("localVisits");
+  const globalEl=document.getElementById("globalVisits");
+  const statusEl=document.getElementById("visitStatus");
+  let isNewSession=true;
+  let localCount=0;
+  try{
+    isNewSession=sessionStorage.getItem(SESSION_VISIT_KEY)!=="yes";
+    localCount=Number(localStorage.getItem(LOCAL_VISIT_KEY)||"0");
+    if(isNewSession){
+      localCount+=1;
+      localStorage.setItem(LOCAL_VISIT_KEY,String(localCount));
+      sessionStorage.setItem(SESSION_VISIT_KEY,"yes");
+    }
+  }catch(error){
+    localCount=1;
+  }
+  if(localEl)localEl.textContent=localCount.toLocaleString();
+  try{
+    const response=await fetch("/api/visit",{method:isNewSession?"POST":"GET",headers:{"Accept":"application/json"},cache:"no-store"});
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.error||"counter unavailable");
+    if(globalEl)globalEl.textContent=Number(result.count||0).toLocaleString();
+    if(statusEl)statusEl.textContent="Global count plus visits on this device. One visit is counted per browser session.";
+  }catch(error){
+    if(globalEl)globalEl.textContent="—";
+    if(statusEl)statusEl.textContent=navigator.onLine?"Global counter needs its database connected in Vercel.":"Global counter unavailable while offline.";
+  }
+}
 
 /* Data */
 function parseLines(text){
@@ -1405,7 +1548,7 @@ function renderData(){
   });
 }
 
-renderFamilyFilter();updateCounts();renderStats();renderSpeechControls();initTheme();initAI();
+renderFamilyFilter();updateCounts();renderStats();renderSpeechControls();initTheme();initVisitCounters();initAI();
 </script>
 
 <script>

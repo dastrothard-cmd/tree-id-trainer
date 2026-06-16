@@ -9,6 +9,9 @@
   "functions": {
     "api/ai.js": {
       "maxDuration": 30
+    },
+    "api/visit.js": {
+      "maxDuration": 10
     }
   },
   "headers": [
