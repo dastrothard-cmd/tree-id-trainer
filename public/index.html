@@ -374,6 +374,83 @@ body.theme-moonlit .visit-stat{background:#20314a;border-color:rgba(150,190,255,
 body.theme-reddirt .visit-stat{background:#6a4030;border-color:rgba(246,188,123,.12)}
 @media(max-width:560px){.mode-art{height:122px}.mode-copy{padding:15px 16px}}
 
+
+
+/* v15.10 — corrected theme art, uniform mode cards and complementary palettes */
+.menu-grid{align-items:stretch}
+.mode-card{display:flex;flex-direction:column;height:100%;padding:0!important;overflow:hidden}
+.mode-art-wrap{display:none;width:100%;aspect-ratio:12/5;overflow:hidden;flex:0 0 auto;background:#111}
+body.has-theme-art .mode-art-wrap{display:block}
+.mode-art{display:block!important;width:100%;height:100%!important;object-fit:cover;object-position:center;transform:scale(1.018);border:0!important}
+.mode-copy{display:flex!important;flex-direction:column;justify-content:center;min-height:112px;height:112px;padding:16px 18px!important;text-align:left;overflow:hidden}
+.mode-copy strong{flex:0 0 auto}
+.mode-copy>span:last-child{display:block;line-height:1.35}
+body.has-theme-art .mode-card .icon{display:none}
+
+/* Slightly yellower green for the quick-update action only. */
+#aiSend{background:linear-gradient(180deg,#91a84f,#667c32)!important;color:#fff!important}
+#aiSend:hover{filter:brightness(1.04)}
+
+/* Mystical Forest: deep foliage, old gold and warm moss drawn from the art. */
+body.theme-mystical{
+  background:
+    radial-gradient(circle at 16% 4%,rgba(116,137,74,.22),transparent 24%),
+    radial-gradient(circle at 88% 28%,rgba(175,132,63,.13),transparent 24%),
+    linear-gradient(180deg,#10160f 0%,#1a2418 48%,#0b100c 100%)!important;
+}
+body.theme-mystical .panel,body.theme-mystical .menu-card,body.theme-mystical .install-panel,body.theme-mystical .ai-panel{
+  background:linear-gradient(180deg,rgba(52,65,47,.96),rgba(24,32,25,.98))!important;
+  border-color:rgba(190,151,79,.22)!important;
+}
+body.theme-mystical .mode-copy{background:linear-gradient(180deg,#2b3828,#1b251d)!important}
+body.theme-mystical .stat,body.theme-mystical .chip{background:linear-gradient(180deg,#394634,#273127)!important}
+
+/* Field Journal: parchment, leather and muted botanical olive. */
+body.theme-journal{
+  background:
+    radial-gradient(circle at 18% 8%,rgba(255,249,222,.46),transparent 23%),
+    radial-gradient(circle at 86% 20%,rgba(139,101,57,.15),transparent 26%),
+    linear-gradient(180deg,#ead9b7 0%,#d8bf91 100%)!important;
+}
+body.theme-journal .panel,body.theme-journal .menu-card,body.theme-journal .install-panel,body.theme-journal .ai-panel{
+  background:linear-gradient(180deg,#f7ecd3,#e7d3ab)!important;
+  border-color:rgba(106,73,38,.18)!important;
+}
+body.theme-journal .mode-copy{background:linear-gradient(180deg,#f3e5c8,#e4c99b)!important}
+body.theme-journal .stat,body.theme-journal .chip{background:linear-gradient(180deg,#f0dfbd,#ddc18e)!important}
+
+/* Moonlit Canopy: ink navy, moon silver and cool eucalyptus blue. */
+body.theme-moonlit{
+  background:
+    radial-gradient(circle at 82% 4%,rgba(105,164,216,.18),transparent 23%),
+    radial-gradient(circle at 18% 30%,rgba(40,91,129,.18),transparent 27%),
+    linear-gradient(180deg,#08111e 0%,#11233a 52%,#07101c 100%)!important;
+}
+body.theme-moonlit .panel,body.theme-moonlit .menu-card,body.theme-moonlit .install-panel,body.theme-moonlit .ai-panel{
+  background:linear-gradient(180deg,#1b304a,#111f31)!important;
+  border-color:rgba(143,191,229,.18)!important;
+}
+body.theme-moonlit .mode-copy{background:linear-gradient(180deg,#203957,#13253b)!important}
+body.theme-moonlit .stat,body.theme-moonlit .chip{background:linear-gradient(180deg,#29435f,#1b2d43)!important}
+
+/* Red Dirt Camp: rust, leather, ember and dusty ochre. */
+body.theme-reddirt{
+  background:
+    radial-gradient(circle at 12% 8%,rgba(216,130,59,.22),transparent 25%),
+    radial-gradient(circle at 88% 24%,rgba(117,56,35,.23),transparent 27%),
+    linear-gradient(180deg,#291713 0%,#593325 50%,#22130f 100%)!important;
+}
+body.theme-reddirt .panel,body.theme-reddirt .menu-card,body.theme-reddirt .install-panel,body.theme-reddirt .ai-panel{
+  background:linear-gradient(180deg,#68402f,#44271f)!important;
+  border-color:rgba(236,170,101,.18)!important;
+}
+body.theme-reddirt .mode-copy{background:linear-gradient(180deg,#704431,#4d2c22)!important}
+body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180deg,#774b37,#573225)!important}
+
+@media(max-width:420px){
+  .mode-copy{height:116px;min-height:116px;padding:14px 16px!important}
+}
+
 </style>
 
 <link rel="manifest" href="/app.webmanifest">
@@ -404,7 +481,7 @@ body.theme-reddirt .visit-stat{background:#6a4030;border-color:rgba(246,188,123,
 <section id="home" class="view active">
   <div class="hero">
     <h2>Learn the tree list.</h2>
-    <p>Australian tree study with a richer look. Works offline. Tap a mode and start.</p>
+    <p>Works offline. Tap a mode and start.</p>
   </div>
 
   <div class="panel install-panel" id="installPanel">
@@ -416,10 +493,10 @@ body.theme-reddirt .visit-stat{background:#6a4030;border-color:rgba(246,188,123,
   </div>
 
   <div class="menu-grid">
-    <button class="menu-card mode-card" data-go="flash"><img class="mode-art" data-mode-art="flash" alt=""><span class="mode-copy"><span class="icon">🗂️</span><strong>Flashcards</strong><span>Common, binomial, genus and family study cards.</span></span></button>
-    <button class="menu-card mode-card" data-go="familyGame"><img class="mode-art" data-mode-art="family" alt=""><span class="mode-copy"><span class="icon">🌿</span><strong>Family ↔ Genus</strong><span>Connect each family with a genus that belongs in it.</span></span></button>
-    <button class="menu-card mode-card" data-go="nameGame"><img class="mode-art" data-mode-art="name" alt=""><span class="mode-copy"><span class="icon">🔗</span><strong>Binomial ↔ Common</strong><span>Match scientific names to common names.</span></span></button>
-    <button class="menu-card mode-card" data-go="tutorial"><img class="mode-art" data-mode-art="tutorial" alt=""><span class="mode-copy"><span class="icon">❓</span><strong>How to use this app</strong><span>A quick guide to every study mode and control.</span></span></button>
+    <button class="menu-card mode-card" data-go="flash"><span class="mode-art-wrap"><img class="mode-art" data-mode-art="flash" alt=""></span><span class="mode-copy"><span class="icon">🗂️</span><strong>Flashcards</strong><span>Common, binomial, genus and family study cards.</span></span></button>
+    <button class="menu-card mode-card" data-go="familyGame"><span class="mode-art-wrap"><img class="mode-art" data-mode-art="family" alt=""></span><span class="mode-copy"><span class="icon">🌿</span><strong>Family ↔ Genus</strong><span>Connect each family with a genus that belongs in it.</span></span></button>
+    <button class="menu-card mode-card" data-go="nameGame"><span class="mode-art-wrap"><img class="mode-art" data-mode-art="name" alt=""></span><span class="mode-copy"><span class="icon">🔗</span><strong>Binomial ↔ Common</strong><span>Match scientific names to common names.</span></span></button>
+    <button class="menu-card mode-card" data-go="tutorial"><span class="mode-art-wrap"><img class="mode-art" data-mode-art="tutorial" alt=""></span><span class="mode-copy"><span class="icon">❓</span><strong>How to use this app</strong><span>A quick guide to every study mode and control.</span></span></button>
   </div>
 
   <div class="panel" style="margin-top:14px">
@@ -744,6 +821,9 @@ let speechSettings = Object.assign(
 let speechVoices = [];
 let voicesReady = false;
 let pendingSpeech = "";
+let activeUtterance = null;
+let speechRunId = 0;
+let speechLoadTimers = [];
 
 function speechSupported(){
   return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
@@ -783,12 +863,27 @@ function selectedVoice(){
     if(chosen)return chosen;
   }
   const fallback=bestInstalledVoice();
-  if(fallback)speechSettings.voiceURI=fallback.voiceURI;
+  if(fallback && speechSettings.voiceURI!==fallback.voiceURI){
+    speechSettings.voiceURI=fallback.voiceURI;
+    saveSpeechSettings();
+  }
   return fallback;
+}
+function setSpeechStatus(text){
+  const status=document.getElementById("speechStatus");
+  if(status)status.textContent=text;
+}
+function wakeSpeechEngine(){
+  if(!speechSupported())return;
+  try{
+    if(window.speechSynthesis.paused)window.speechSynthesis.resume();
+  }catch{}
+  refreshSpeechVoices();
 }
 function refreshSpeechVoices(){
   if(!speechSupported())return;
-  const list=window.speechSynthesis.getVoices()||[];
+  let list=[];
+  try{list=window.speechSynthesis.getVoices()||[];}catch{}
   if(list.length){
     speechVoices=sortVoices(list);
     voicesReady=true;
@@ -798,46 +893,99 @@ function refreshSpeechVoices(){
       saveSpeechSettings();
     }
     renderSpeechControls();
-    if(pendingSpeech && speechSettings.enabled){
-      const text=pendingSpeech;pendingSpeech="";
-      setTimeout(()=>speakCardText(text),100);
+    if(pendingSpeech){
+      const text=pendingSpeech;
+      pendingSpeech="";
+      if(speechSettings.enabled)setTimeout(()=>speakCardText(text),80);
     }
+  }else{
+    voicesReady=false;
+    renderSpeechControls();
   }
 }
 function scheduleVoiceLoading(){
-  refreshSpeechVoices();
-  [150,400,900,1800,3500].forEach(ms=>setTimeout(refreshSpeechVoices,ms));
+  speechLoadTimers.forEach(clearTimeout);
+  speechLoadTimers=[];
+  [0,100,250,500,900,1500,2500,4000,6500].forEach(ms=>{
+    speechLoadTimers.push(setTimeout(refreshSpeechVoices,ms));
+  });
 }
 function describeVoiceState(){
   if(!speechSupported())return"Speech is unavailable in this browser.";
-  if(!voicesReady)return"Waiting for Android to provide its installed voices…";
   const chosen=selectedVoice();
-  if(!chosen)return"No usable voice is installed.";
-  return `Using: ${voiceLabel(chosen)}`;
+  if(chosen)return `Using: ${voiceLabel(chosen)}`;
+  if(!voicesReady)return"Waiting for the device to provide its installed voices. Test voice will use the device default.";
+  return"No named voice was returned. Test voice will use the device default.";
 }
-function speakCardText(text, force=false){
-  if((!speechSettings.enabled && !force) || !speechSupported() || !text)return;
-  if(!voicesReady){
+function speakNow(text,voice=null,isFallback=false){
+  if(!speechSupported()||!text)return;
+  const synth=window.speechSynthesis;
+  const runId=++speechRunId;
+  try{synth.cancel();}catch{}
+  try{if(synth.paused)synth.resume();}catch{}
+
+  // Android Chrome can silently drop speech when cancel() and speak() run in the same tick.
+  setTimeout(()=>{
+    if(runId!==speechRunId)return;
+    const utterance=new SpeechSynthesisUtterance(String(text));
+    if(voice)utterance.voice=voice;
+    utterance.lang=voice?.lang || "en-AU";
+    utterance.rate=Number(speechSettings.rate)||0.92;
+    utterance.pitch=1;
+    utterance.volume=1;
+    activeUtterance=utterance;
+
+    utterance.onstart=()=>{
+      if(runId!==speechRunId)return;
+      setSpeechStatus(voice?`Speaking with: ${voiceLabel(voice)}`:"Speaking with the device default voice.");
+    };
+    utterance.onend=()=>{
+      if(runId!==speechRunId)return;
+      activeUtterance=null;
+      renderSpeechControls();
+    };
+    utterance.onerror=event=>{
+      if(runId!==speechRunId)return;
+      activeUtterance=null;
+      const code=String(event?.error||"");
+      if(code==="canceled"||code==="interrupted")return;
+      if(!isFallback && voice){
+        setSpeechStatus("That installed voice failed. Trying the device default voice…");
+        setTimeout(()=>speakNow(text,null,true),100);
+      }else{
+        setSpeechStatus("Android could not start speech. Tap Reload installed voices, select a voice, then press Test selected voice.");
+      }
+    };
+
+    try{
+      synth.speak(utterance);
+      setTimeout(()=>{
+        try{if(synth.paused)synth.resume();}catch{}
+      },180);
+    }catch{
+      if(!isFallback && voice)setTimeout(()=>speakNow(text,null,true),100);
+      else setSpeechStatus("Speech could not start on this device.");
+    }
+  },70);
+}
+function speakCardText(text,force=false){
+  if((!speechSettings.enabled&&!force)||!speechSupported()||!text)return;
+  wakeSpeechEngine();
+  const voice=selectedVoice();
+  if(!voice && !voicesReady){
     pendingSpeech=String(text);
     scheduleVoiceLoading();
+    // Do not wait forever for Android's named voice list; its default TTS can still work.
+    setTimeout(()=>{
+      if(pendingSpeech===String(text)){
+        pendingSpeech="";
+        speakNow(text,null,true);
+      }
+    },500);
     return;
   }
-  const voice=selectedVoice();
-  if(!voice){
-    renderSpeechControls();
-    return;
-  }
-  window.speechSynthesis.cancel();
-  const utterance=new SpeechSynthesisUtterance(String(text));
-  utterance.voice=voice;
-  utterance.lang=voice.lang || "en-AU";
-  utterance.rate=Number(speechSettings.rate)||0.92;
-  utterance.pitch=1;
-  utterance.onerror=()=> {
-    const status=document.getElementById("speechStatus");
-    if(status)status.textContent="That voice failed to speak. Pick another installed voice and press Test voice.";
-  };
-  window.speechSynthesis.speak(utterance);
+  pendingSpeech="";
+  speakNow(text,voice,false);
 }
 function saveSpeechSettings(){
   localStorage.setItem(SPEECH_KEY,JSON.stringify(speechSettings));
@@ -855,16 +1003,16 @@ function renderSpeechControls(){
     test.disabled=true;
     voiceSelect.disabled=true;
     toggle.textContent="Speech unavailable";
-    status.textContent="Try opening the file in Chrome or Samsung Internet.";
+    status.textContent="Try opening the app in Chrome or Samsung Internet.";
     return;
   }
 
   toggle.disabled=false;
-  test.disabled=!voicesReady || !selectedVoice();
+  test.disabled=false;
   toggle.textContent=speechSettings.enabled?"🔊 Speech on":"🔇 Speech off";
   toggle.className=speechSettings.enabled?"primary":"secondary";
 
-  if(!voicesReady){
+  if(!voicesReady || !speechVoices.length){
     voiceSelect.innerHTML='<option value="">Loading installed voices…</option>';
     voiceSelect.disabled=true;
   }else{
@@ -875,10 +1023,17 @@ function renderSpeechControls(){
     const chosen=selectedVoice();
     if(chosen)voiceSelect.value=chosen.voiceURI;
   }
-  status.textContent=describeVoiceState();
+  if(!activeUtterance)status.textContent=describeVoiceState();
 }
 if(speechSupported()){
-  window.speechSynthesis.addEventListener?.("voiceschanged",refreshSpeechVoices);
+  try{window.speechSynthesis.addEventListener?.("voiceschanged",refreshSpeechVoices);}catch{}
+  window.addEventListener("pageshow",scheduleVoiceLoading);
+  window.addEventListener("focus",wakeSpeechEngine);
+  document.addEventListener("visibilitychange",()=>{
+    if(!document.hidden){wakeSpeechEngine();scheduleVoiceLoading();}
+  });
+  document.addEventListener("pointerdown",wakeSpeechEngine,{passive:true});
+  document.addEventListener("touchstart",wakeSpeechEngine,{passive:true});
   scheduleVoiceLoading();
 }
 function renderFamilyFilter(){
@@ -965,13 +1120,20 @@ document.getElementById("speechVoice").addEventListener("change",e=>{
   speakCardText("Jarrah. Eucalyptus marginata.",true);
 });
 document.getElementById("speechTest").addEventListener("click",()=>{
+  wakeSpeechEngine();
   speakCardText("Jarrah. Eucalyptus marginata. Marri. Corymbia calophylla.",true);
 });
 document.getElementById("speechRefresh").addEventListener("click",()=>{
   voicesReady=false;
   speechVoices=[];
   speechSettings.voiceURI="";
-  if(speechSupported())window.speechSynthesis.cancel();
+  pendingSpeech="";
+  activeUtterance=null;
+  if(speechSupported()){
+    try{window.speechSynthesis.cancel();}catch{}
+    wakeSpeechEngine();
+  }
+  saveSpeechSettings();
   renderSpeechControls();
   scheduleVoiceLoading();
 });
