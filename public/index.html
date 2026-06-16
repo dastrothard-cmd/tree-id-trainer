@@ -461,8 +461,8 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Tree ID Trainer">
-<meta name="tree-id-trainer-version" content="15.17-cloud-speech-fallback">
-<meta name="tree-id-trainer-build" content="15.17">
+<meta name="tree-id-trainer-version" content="15.18-device-native-tts">
+<meta name="tree-id-trainer-build" content="15.18">
 
 </head>
 <body>
@@ -670,7 +670,7 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
       <button class="secondary" id="speechTest" type="button">▶ Test selected voice</button>
       <button class="secondary" id="speechRefresh" type="button">↻ Reload installed voices</button>
     </div>
-    <div class="hint" id="speechStatus">Choose an installed voice or the reliable online Australian voice.</div><div class="hint" id="cloudVoiceDisclosure" style="font-size:11px;margin-top:4px">The online voice is AI-generated, requires internet, and uses a small amount of API credit.</div>
+    <div class="hint" id="speechStatus">Choose an installed voice or the online Australian voice.</div><div class="hint" id="cloudVoiceDisclosure" style="font-size:11px;margin-top:4px">The online voice is AI-generated, requires internet, and uses a small amount of API credit. Installed device voices are instant when used through the Android app.</div>
     <div class="stats"><span class="stat" id="flashPosition">Card 1</span><span class="stat" id="flashKnown">Known: 0</span><span class="stat" id="flashAgain">Again: 0</span></div>
     <div class="progressbar"><div id="flashProgress"></div></div>
   </div>
@@ -745,7 +745,7 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
   </div>
 </section>
 
-<div class="footer-note">Hosted Edition · v15.17 · Your tree list and settings stay in this browser on this device.</div>
+<div class="footer-note">Hosted Edition · v15.18 · Your tree list and settings stay in this browser on this device.</div>
 </main>
 
 <div class="update-banner" id="updateBanner">
@@ -832,6 +832,71 @@ let speechAttemptId = 0;
 let cloudAudio = null;
 let cloudAudioUrl = "";
 const CLOUD_VOICE_VALUE = "__cloud_australian__";
+const NATIVE_DEFAULT_VALUE = "__native_default__";
+const NATIVE_VOICE_PREFIX = "__native_voice__:";
+let nativeTtsVoices = [];
+
+function nativeTtsAvailable(){
+  return !!window.NativeTTS &&
+    typeof window.NativeTTS.speak === "function" &&
+    typeof window.NativeTTS.getVoices === "function";
+}
+function nativeVoiceSelected(){
+  return speechSettings.voiceURI === NATIVE_DEFAULT_VALUE ||
+    String(speechSettings.voiceURI || "").startsWith(NATIVE_VOICE_PREFIX);
+}
+function nativeSelectedVoiceName(){
+  if(!String(speechSettings.voiceURI || "").startsWith(NATIVE_VOICE_PREFIX))return "";
+  return String(speechSettings.voiceURI).slice(NATIVE_VOICE_PREFIX.length);
+}
+function loadNativeTtsVoices(){
+  if(!nativeTtsAvailable()){
+    nativeTtsVoices=[];
+    return;
+  }
+  try{
+    const raw=window.NativeTTS.getVoices();
+    const list=JSON.parse(raw || "[]");
+    nativeTtsVoices=Array.isArray(list) ? list : [];
+  }catch{
+    nativeTtsVoices=[];
+  }
+}
+function speakWithNativeTts(text){
+  if(!nativeTtsAvailable() || !text)return;
+  stopCloudSpeech();
+  clearTimeout(speechTimer);
+  try{window.speechSynthesis?.cancel?.();}catch{}
+  const voiceName=nativeSelectedVoiceName();
+  const rate=Number(speechSettings.rate)||0.92;
+  setSpeechStatus(
+    voiceName
+      ? `Speaking with installed device voice: ${voiceName}…`
+      : "Speaking with device default voice…"
+  );
+  try{
+    window.NativeTTS.speak(String(text),voiceName,rate);
+  }catch(error){
+    setSpeechStatus(`Installed device voice failed (${error?.message || "native error"}).`);
+  }
+}
+function stopNativeTts(){
+  if(!nativeTtsAvailable())return;
+  try{window.NativeTTS.stop();}catch{}
+}
+window.onNativeTTSStatus=function(status,message){
+  if(status==="start"){
+    setSpeechStatus(message || "Speaking with installed device voice…");
+  }else if(status==="done"){
+    setSpeechStatus(describeVoiceState());
+  }else if(status==="error"){
+    setSpeechStatus(`Installed device voice failed${message ? ` (${message})` : ""}.`);
+  }
+};
+window.addEventListener("nativevoiceschanged",()=>{
+  loadNativeTtsVoices();
+  renderSpeechControls();
+});
 const cloudSpeechCache = new Map();
 
 function cloudVoiceSelected(){
@@ -947,11 +1012,15 @@ function scheduleVoiceLoading(){
 }
 function describeVoiceState(){
   if(cloudVoiceSelected())return "Using online Australian voice.";
-  if(!speechSupported())return "Native speech is unavailable; choose the online Australian voice.";
+  if(nativeVoiceSelected() && nativeTtsAvailable()){
+    const name=nativeSelectedVoiceName();
+    return name ? `Using installed device voice: ${name}` : "Using device default voice.";
+  }
+  if(!speechSupported())return "Browser speech is unavailable; choose the online Australian voice.";
   const voice=selectedVoice();
-  if(voice)return `Using: ${voiceLabel(voice)}`;
-  if(!voicesReady)return "Phone default voice is ready; Android is still loading its named voices.";
-  return "Using Phone default voice.";
+  if(voice)return `Using browser voice: ${voiceLabel(voice)}`;
+  if(!voicesReady)return "Device default voice is ready; the browser is still loading its named voices.";
+  return "Using device default voice.";
 }
 function buildUtterance(text,mode,voice){
   const utterance=new SpeechSynthesisUtterance();
@@ -981,7 +1050,7 @@ function runSpeechAttempt(text,mode,voice,attemptId){
   utterance.onstart=()=>{
     if(attemptId!==speechAttemptId)return;
     if(mode==="selected" && voice)setSpeechStatus(`Speaking with ${voice.name}…`);
-    else if(mode==="default")setSpeechStatus(`Speaking with phone default voice (${phoneLanguage()})…`);
+    else if(mode==="default")setSpeechStatus(`Speaking with device default voice (${phoneLanguage()})…`);
     else setSpeechStatus("Speaking with raw Android default voice…");
   };
   utterance.onend=()=>{
@@ -997,16 +1066,16 @@ function runSpeechAttempt(text,mode,voice,attemptId){
     if(code==="canceled" || code==="interrupted")return;
 
     if(mode==="selected"){
-      setSpeechStatus("Selected voice failed. Retrying with phone default voice…");
+      setSpeechStatus("Selected voice failed. Retrying with device default voice…");
       speechTimer=setTimeout(()=>runSpeechAttempt(text,"default",null,attemptId),350);
       return;
     }
     if(mode==="default"){
-      setSpeechStatus("Phone default failed. Retrying with Android’s raw speech defaults…");
+      setSpeechStatus("Device default failed. Retrying with Android’s raw speech defaults…");
       speechTimer=setTimeout(()=>runSpeechAttempt(text,"raw",null,attemptId),350);
       return;
     }
-    setSpeechStatus(`Android speech engine failed (${code}). Select “Online Australian voice — reliable”.`);
+    setSpeechStatus(`Android speech engine failed (${code}). The browser rejected its speech engine. Select “Online Australian voice”, or use the Android app for true installed-device voices.`);
   };
 
   try{
@@ -1021,6 +1090,10 @@ function speakCardText(text,force=false){
 
   if(cloudVoiceSelected()){
     speakWithCloudVoice(String(text));
+    return;
+  }
+  if(nativeVoiceSelected() && nativeTtsAvailable()){
+    speakWithNativeTts(String(text));
     return;
   }
   if(!speechSupported())return;
@@ -1041,6 +1114,7 @@ function speakCardText(text,force=false){
   speechTimer=setTimeout(()=>runSpeechAttempt(String(text),mode,voice,attemptId),320);
 }
 function stopSpeech(){
+  stopNativeTts();
   stopCloudSpeech();
   clearTimeout(speechTimer);
   speechAttemptId++;
@@ -1057,24 +1131,44 @@ function renderSpeechControls(){
   const status=document.getElementById("speechStatus");
   if(!toggle||!voiceSelect||!test||!status)return;
 
+  loadNativeTtsVoices();
+
   toggle.disabled=false;
   test.disabled=false;
   voiceSelect.disabled=false;
   toggle.textContent=speechSettings.enabled?"🔊 Speech on":"🔇 Speech off";
   toggle.className=speechSettings.enabled?"primary":"secondary";
 
-  const nativeOptions=speechSupported()
-    ? '<option value="">Phone default voice</option>'+
-      speechVoices.map(v=>`<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}</option>`).join("")
-    : '<option value="">Native speech unavailable</option>';
+  const onlineOption='<option value="__cloud_australian__">Online Australian voice</option>';
 
-  voiceSelect.innerHTML=
-    '<option value="__cloud_australian__">Online Australian voice — reliable</option>'+
-    nativeOptions;
-  voiceSelect.value=speechSettings.voiceURI || "";
+  const nativeOptions=nativeTtsAvailable()
+    ? '<optgroup label="Installed device voices">'+
+      '<option value="__native_default__">Device default voice</option>'+
+      nativeTtsVoices.map(v=>{
+        const detail=[v.locale||"",v.network?"network":"device"].filter(Boolean).join(" · ");
+        const label=detail ? `${v.name} — ${detail}` : v.name;
+        return `<option value="${esc(NATIVE_VOICE_PREFIX+v.name)}">${esc(label)}</option>`;
+      }).join("")+
+      '</optgroup>'
+    : '';
+
+  const browserOptions=speechSupported()
+    ? '<optgroup label="Browser-provided voices">'+
+      '<option value="">Device default voice through browser</option>'+
+      speechVoices.map(v=>`<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}</option>`).join("")+
+      '</optgroup>'
+    : '';
+
+  voiceSelect.innerHTML=onlineOption+nativeOptions+browserOptions;
+  if(![...voiceSelect.options].some(o=>o.value===speechSettings.voiceURI)){
+    speechSettings.voiceURI=nativeTtsAvailable() ? NATIVE_DEFAULT_VALUE : CLOUD_VOICE_VALUE;
+    saveSpeechSettings();
+  }
+  voiceSelect.value=speechSettings.voiceURI;
 
   if(!activeUtterance && !cloudAudio)status.textContent=describeVoiceState();
 }
+loadNativeTtsVoices();
 if(speechSupported()){
   try{window.speechSynthesis.addEventListener?.("voiceschanged",refreshSpeechVoices);}catch{}
   window.addEventListener("pageshow",scheduleVoiceLoading);
@@ -1181,7 +1275,7 @@ document.getElementById("speechRefresh").addEventListener("click",()=>{
   saveSpeechSettings();
   renderSpeechControls();
   scheduleVoiceLoading();
-  setSpeechStatus("Native speech engine reset. Choose Phone default or Online Australian voice.");
+  setSpeechStatus("Native speech engine reset. Choose Device default or Online Australian voice.");
 });
 
 /* Generic matching game */

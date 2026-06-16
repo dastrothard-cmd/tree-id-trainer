@@ -41,8 +41,9 @@ module.exports = async function handler(req, res) {
         voice: "marin",
         input: text,
         instructions:
-          "Speak clearly in a natural Australian English accent at a calm educational pace. " +
-          "Pronounce botanical Latin names carefully and distinctly.",
+          "Use a consistent natural Australian English accent for the entire utterance. " +
+          "Do not drift into an American, Canadian, British or other accent. " +
+          "Speak at a calm educational pace and pronounce botanical Latin names carefully and distinctly.",
         response_format: "mp3"
       })
     });

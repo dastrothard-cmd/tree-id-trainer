@@ -1,0 +1,19 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.treeidflashcards.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.treeidflashcards.app'
+        minSdk 23
+        targetSdk 35
+        versionCode 18
+        versionName '15.18'
+    }
+}
+
+dependencies {
+}
