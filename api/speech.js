@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
     return res.status(403).json({ error: "Request origin not allowed." });
   }
   if (!process.env.OPENAI_API_KEY) {
-    return res.status(503).json({ error: "The online voice is not connected." });
+    return res.status(503).json({ error: "App voice is not connected." });
   }
 
   const text = String(req.body?.text || "").trim().slice(0, 320);
@@ -49,7 +49,7 @@ module.exports = async function handler(req, res) {
     });
 
     if (!response.ok) {
-      let message = `Online voice request failed (${response.status}).`;
+      let message = `App voice request failed (${response.status}).`;
       try {
         const body = await response.json();
         if (body?.error?.message) message = body.error.message;
@@ -63,7 +63,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).send(audio);
   } catch (error) {
     return res.status(500).json({
-      error: error?.message || "The online voice request failed."
+      error: error?.message || "The App voice request failed."
     });
   }
 };

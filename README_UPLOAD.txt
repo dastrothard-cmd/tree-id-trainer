@@ -1,15 +1,18 @@
-TREE ID TRAINER v15.17 — RELIABLE ONLINE VOICE + NATIVE DIAGNOSTIC
+TREE ID TRAINER v15.19 — UNIVERSAL APP VOICE
 
 Upload the unzipped contents from the MAIN PAGE of the GitHub repository.
 
-Adds:
-- Online Australian voice — reliable
-- Exact-v5 native speech diagnostic at /speech-test.html
-- Native installed voices remain available
-- No visual assets changed
+This update:
+- Makes App voice the default across browsers and devices.
+- Stores each generated recording locally after first use.
+- Plays saved recordings faster and offline.
+- Prefetches the current and upcoming flashcards.
+- Adds a Cache current list button.
+- Automatically queues recordings for new AI-added or imported specimens.
+- Keeps browser/device voices optional and falls back to App voice if they fail.
+- Removes all Android-specific voice wording.
 
-The online voice uses the OPENAI_API_KEY already stored in Vercel.
-After deployment, select:
-Online Australian voice — reliable
-
-The online voice is AI-generated, requires internet and uses API credit.
+Changed:
+- public/index.html
+- public/service-worker.js
+- api/speech.js
