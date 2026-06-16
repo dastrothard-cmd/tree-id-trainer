@@ -10,20 +10,61 @@
   --bg:#eef3ed;--panel:#ffffff;--ink:#173126;--muted:#627268;
   --green:#21633f;--green2:#2f8055;--pale:#dcebdd;--gold:#d6a83f;
   --bad:#b84a45;--line:#d7e0d8;--shadow:0 8px 24px rgba(24,55,38,.10);
+  --header-art:url('/header-art.png');--hero-art:url('/header-art.png');
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 button:disabled{opacity:.45;cursor:not-allowed}
-header{position:sticky;top:0;z-index:5;background:#173d2a;color:#fff;padding:14px 16px 12px;box-shadow:0 2px 12px rgba(0,0,0,.18)}
-.header-row{max-width:900px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
-h1{font-size:20px;margin:0}.subtitle{font-size:12px;opacity:.78;margin-top:2px}
-.home-btn{border:1px solid rgba(255,255,255,.35);background:transparent;color:white;border-radius:10px;padding:9px 12px}
+header{
+  position:sticky;top:0;z-index:5;
+  color:#fff;padding:14px 16px 12px;box-shadow:0 8px 22px rgba(0,0,0,.26);
+  background:
+    linear-gradient(180deg,rgba(6,10,9,.18),rgba(8,12,10,.62)),
+    linear-gradient(90deg,rgba(12,18,15,.96),rgba(17,28,22,.82) 35%,rgba(20,30,24,.74) 65%,rgba(13,19,16,.9)),
+    var(--header-art);
+  background-size:cover;
+  background-position:center 28%;
+  border-bottom:1px solid rgba(212,184,115,.20)
+}
+.header-row{max-width:900px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.header-logo{
+  width:52px;height:52px;border-radius:14px;flex:0 0 52px;object-fit:cover;
+  box-shadow:0 8px 18px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.18);
+  border:1px solid rgba(223,196,133,.34);background:#1b251f
+}
+.brand-copy{min-width:0}
+h1{font-size:21px;margin:0;line-height:1.05;text-shadow:0 1px 4px rgba(0,0,0,.42)}
+.header-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#e7d8ae;opacity:.95;margin-top:2px}
+.subtitle{font-size:12px;opacity:.84;margin-top:3px;color:#e7efea}
+.home-btn{
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.10);backdrop-filter:blur(4px);
+  color:white;border-radius:12px;padding:9px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)
+}
 main{max-width:900px;margin:auto;padding:16px 14px 42px}
 .view{display:none}.view.active{display:block}
-.hero{background:linear-gradient(135deg,#173d2a,#2f8055);color:white;border-radius:20px;padding:22px 18px;box-shadow:var(--shadow);margin-bottom:15px}
-.hero h2{margin:0 0 6px;font-size:28px}.hero p{margin:0;opacity:.86}
+.hero{
+  position:relative;overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(12,18,15,.28),rgba(10,14,12,.62)),
+    var(--hero-art);
+  background-size:cover;
+  background-position:center 34%;
+  color:white;border-radius:22px;padding:24px 18px;box-shadow:var(--shadow);margin-bottom:15px;
+  border:1px solid rgba(212,184,115,.18)
+}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 22% 22%, rgba(255,230,170,.10), transparent 18%),
+    linear-gradient(135deg, rgba(255,255,255,.04), transparent 34%);
+}
+.hero > *{position:relative;z-index:1}
+.hero h2{margin:0 0 6px;font-size:29px;text-shadow:0 2px 8px rgba(0,0,0,.38)}
+.hero p{margin:0;opacity:.92;color:#ecf0ec}
 .menu-grid{display:grid;grid-template-columns:1fr;gap:12px}
 .menu-card{width:100%;text-align:left;border:0;background:var(--panel);border-radius:17px;padding:18px;box-shadow:var(--shadow);color:var(--ink)}
 .menu-card:active{transform:scale(.99)}
@@ -297,6 +338,9 @@ body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
 </style>
 
 <link rel="manifest" href="/app.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/icons/favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -306,7 +350,14 @@ body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
 <body>
 <header>
   <div class="header-row">
-    <div><h1>🌳 Tree ID Trainer</h1><div class="subtitle" id="headerCount"></div></div>
+    <div class="brand">
+      <img id="headerLogo" class="header-logo" src="/icons/icon-192.png" alt="Tree ID Trainer logo">
+      <div class="brand-copy">
+        <h1>Tree ID Trainer</h1>
+        <div class="header-tag">Australian tree study</div>
+        <div class="subtitle" id="headerCount"></div>
+      </div>
+    </div>
     <button class="home-btn" id="homeBtn" type="button">Home</button>
   </div>
 </header>
@@ -314,7 +365,7 @@ body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
 <section id="home" class="view active">
   <div class="hero">
     <h2>Learn the tree list.</h2>
-    <p>Works offline. Tap a mode and start.</p>
+    <p>Australian tree study with a richer look. Works offline. Tap a mode and start.</p>
   </div>
 
   <div class="panel install-panel" id="installPanel">
@@ -395,6 +446,12 @@ body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
     <div style="margin-top:6px">
       <a href="mailto:dastrothard@gmail.com?subject=Tree%20ID%20Trainer%20feedback" style="color:var(--green);font-weight:750;text-decoration:none">dastrothard@gmail.com</a>
     </div>
+  </div>
+
+  <div class="panel" style="margin-top:14px;text-align:center">
+    <div style="color:var(--muted);font-size:13px;line-height:1.45">Visits on this device</div>
+    <div id="visitCounter" style="margin-top:6px;font-size:28px;font-weight:850;line-height:1">0</div>
+    <div class="hint" style="margin-top:8px">Counts how many times this app has been opened in this browser on this device.</div>
   </div>
 </section>
 
@@ -1334,6 +1391,13 @@ function initAI(){
 
 const THEME_KEY = "tree-id-trainer-theme-v1";
 const THEMES = ["default","mystical","journal","moonlit","reddirt"];
+const THEME_ASSETS = {
+  default:{header:"/header-art.png",hero:"/header-art.png",logo:"/icons/icon-192.png"},
+  mystical:{header:"/theme-assets/mystical-header.png",hero:"/theme-assets/mystical-header.png",logo:"/theme-assets/mystical-logo.png"},
+  journal:{header:"/theme-assets/journal-header.png",hero:"/theme-assets/journal-header.png",logo:"/theme-assets/journal-logo.png"},
+  moonlit:{header:"/theme-assets/moonlit-header.png",hero:"/theme-assets/moonlit-header.png",logo:"/theme-assets/moonlit-logo.png"},
+  reddirt:{header:"/theme-assets/reddirt-header.png",hero:"/theme-assets/reddirt-header.png",logo:"/theme-assets/reddirt-logo.png"}
+};
 
 function applyTheme(theme){
   if(!THEMES.includes(theme)) theme = "default";
@@ -1344,6 +1408,11 @@ function applyTheme(theme){
     if(theme === "moonlit") document.body.classList.add("theme-moonlit");
     if(theme === "reddirt") document.body.classList.add("theme-reddirt");
   }
+  const assets = THEME_ASSETS[theme] || THEME_ASSETS.default;
+  document.documentElement.style.setProperty("--header-art", `url('${assets.header}')`);
+  document.documentElement.style.setProperty("--hero-art", `url('${assets.hero || assets.header}')`);
+  const headerLogo = document.getElementById("headerLogo");
+  if(headerLogo) headerLogo.src = assets.logo;
   localStorage.setItem(THEME_KEY, theme);
   const sel = document.getElementById("themeSelect");
   if(sel) sel.value = theme;
@@ -1354,6 +1423,19 @@ function initTheme(){
   applyTheme(saved);
   const sel = document.getElementById("themeSelect");
   if(sel) sel.addEventListener("change", e => applyTheme(e.target.value));
+}
+
+const VISIT_COUNT_KEY = "tree-id-trainer-visit-count-v1";
+function initVisitCounter(){
+  let count = 1;
+  try{
+    count = Number(localStorage.getItem(VISIT_COUNT_KEY) || "0") + 1;
+    localStorage.setItem(VISIT_COUNT_KEY, String(count));
+  }catch(error){
+    count = 1;
+  }
+  const el = document.getElementById("visitCounter");
+  if(el) el.textContent = count.toLocaleString();
 }
 
 
@@ -1405,7 +1487,7 @@ function renderData(){
   });
 }
 
-renderFamilyFilter();updateCounts();renderStats();renderSpeechControls();initTheme();initAI();
+renderFamilyFilter();updateCounts();renderStats();renderSpeechControls();initTheme();initVisitCounter();initAI();
 </script>
 
 <script>

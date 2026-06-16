@@ -1,10 +1,14 @@
-const CACHE_NAME="tree-id-trainer-hosted-v6";
+const CACHE_NAME="tree-id-trainer-hosted-v8";
 const CORE=[
   "/",
   "/index.html",
   "/app.webmanifest",
   "/icons/icon-192.png",
-  "/icons/icon-512.png"
+  "/icons/icon-512.png","/icons/favicon-32.png","/icons/favicon-64.png","/icons/apple-touch-icon.png","/header-art.png",
+  "/theme-assets/mystical-header.png","/theme-assets/mystical-logo.png",
+  "/theme-assets/journal-header.png","/theme-assets/journal-logo.png",
+  "/theme-assets/moonlit-header.png","/theme-assets/moonlit-logo.png",
+  "/theme-assets/reddirt-header.png","/theme-assets/reddirt-logo.png"
 ];
 
 self.addEventListener("install",event=>{
