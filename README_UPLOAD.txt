@@ -1,8 +1,10 @@
-TREE ID TRAINER v15.12 PATCH
+TREE ID TRAINER v15.13 — EXACT v5 SPEECH RESTORE
 
-Upload the unzipped contents from the MAIN GitHub repository page.
-It contains only:
+Upload the unzipped contents from the MAIN page of the GitHub repository.
+
+Replaces only:
 - public/index.html
 - public/service-worker.js
 
-This preserves the live v15.11 artwork and changes only Android speech and the header tagline.
+Visual assets are untouched.
+The speech engine and speech-button handlers are restored to the exact simple implementation used in v5, which previously worked on Android.

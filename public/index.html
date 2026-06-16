@@ -461,6 +461,7 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Tree ID Trainer">
+<meta name="tree-id-trainer-version" content="15.13-v5-speech-restore">
 <meta name="tree-id-trainer-build" content="15.12">
 
 </head>
@@ -813,17 +814,14 @@ document.getElementById("homeBtn").addEventListener("click",()=>showView("home")
 
 /* Flashcards */
 let flashDeck=[], flashIndex=0, flashKnown=0, flashAgain=0;
-const SPEECH_KEY = "tree-id-trainer-speech-v3";
+const SPEECH_KEY = "tree-id-trainer-speech-v2";
 let speechSettings = Object.assign(
   {enabled:false, voiceURI:"", rate:0.92},
-  loadJSON(SPEECH_KEY, loadJSON("tree-id-trainer-speech-v2", loadJSON("tree-id-trainer-speech-v1", {})))
+  loadJSON(SPEECH_KEY, loadJSON("tree-id-trainer-speech-v1", {}))
 );
 let speechVoices = [];
 let voicesReady = false;
-let activeUtterances = new Set();
-let speechTimer = null;
-let speechUnlocked = false;
-let speechLoadTimers = [];
+let pendingSpeech = "";
 
 function speechSupported(){
   return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
@@ -836,7 +834,7 @@ function sortVoices(list){
   return [...list].sort((a,b)=>{
     const aEnglish=String(a.lang||"").toLowerCase().startsWith("en") ? 0 : 1;
     const bEnglish=String(b.lang||"").toLowerCase().startsWith("en") ? 0 : 1;
-    return aEnglish-bEnglish || String(a.lang||"").localeCompare(String(b.lang||"")) || String(a.name||"").localeCompare(String(b.name||""));
+    return aEnglish-bEnglish || String(a.lang).localeCompare(String(b.lang)) || a.name.localeCompare(b.name);
   });
 }
 function englishVoices(){
@@ -863,24 +861,12 @@ function selectedVoice(){
     if(chosen)return chosen;
   }
   const fallback=bestInstalledVoice();
-  if(fallback && speechSettings.voiceURI!==fallback.voiceURI){
-    speechSettings.voiceURI=fallback.voiceURI;
-    saveSpeechSettings();
-  }
+  if(fallback)speechSettings.voiceURI=fallback.voiceURI;
   return fallback;
-}
-function setSpeechStatus(text){
-  const status=document.getElementById("speechStatus");
-  if(status)status.textContent=text;
-}
-function resumeSpeechEngine(){
-  if(!speechSupported())return;
-  try{window.speechSynthesis.resume();}catch{}
 }
 function refreshSpeechVoices(){
   if(!speechSupported())return;
-  let list=[];
-  try{list=window.speechSynthesis.getVoices()||[];}catch{}
+  const list=window.speechSynthesis.getVoices()||[];
   if(list.length){
     speechVoices=sortVoices(list);
     voicesReady=true;
@@ -889,101 +875,47 @@ function refreshSpeechVoices(){
       speechSettings.voiceURI=best?best.voiceURI:"";
       saveSpeechSettings();
     }
-  }else{
-    voicesReady=false;
+    renderSpeechControls();
+    if(pendingSpeech && speechSettings.enabled){
+      const text=pendingSpeech;pendingSpeech="";
+      setTimeout(()=>speakCardText(text),100);
+    }
   }
-  renderSpeechControls();
 }
 function scheduleVoiceLoading(){
-  speechLoadTimers.forEach(clearTimeout);
-  speechLoadTimers=[];
-  [0,80,200,450,900,1600,2800,4500].forEach(ms=>{
-    speechLoadTimers.push(setTimeout(refreshSpeechVoices,ms));
-  });
+  refreshSpeechVoices();
+  [150,400,900,1800,3500].forEach(ms=>setTimeout(refreshSpeechVoices,ms));
 }
 function describeVoiceState(){
-  if(!speechSupported())return "Speech is unavailable in this browser.";
+  if(!speechSupported())return"Speech is unavailable in this browser.";
+  if(!voicesReady)return"Waiting for Android to provide its installed voices…";
   const chosen=selectedVoice();
-  if(chosen)return `Using: ${voiceLabel(chosen)}`;
-  if(!voicesReady)return "Android has not returned its voice list yet. Test voice will use the phone's default installed voice.";
-  return "No named voice was returned. Test voice will use the phone's default installed voice.";
+  if(!chosen)return"No usable voice is installed.";
+  return `Using: ${voiceLabel(chosen)}`;
 }
-function releaseUtterance(utterance){
-  activeUtterances.delete(utterance);
-  renderSpeechControls();
-}
-function buildUtterance(text,voice){
-  const utterance=new SpeechSynthesisUtterance(String(text));
-  if(voice){
-    utterance.voice=voice;
-    if(voice.lang)utterance.lang=voice.lang;
+function speakCardText(text, force=false){
+  if((!speechSettings.enabled && !force) || !speechSupported() || !text)return;
+  if(!voicesReady){
+    pendingSpeech=String(text);
+    scheduleVoiceLoading();
+    return;
   }
-  // When using Android's default voice, deliberately leave lang unset so the
-  // phone can choose its own installed TTS language instead of rejecting en-AU.
+  const voice=selectedVoice();
+  if(!voice){
+    renderSpeechControls();
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(String(text));
+  utterance.voice=voice;
+  utterance.lang=voice.lang || "en-AU";
   utterance.rate=Number(speechSettings.rate)||0.92;
   utterance.pitch=1;
-  utterance.volume=1;
-  return utterance;
-}
-function launchSpeech(text,voice,allowFallback=true){
-  if(!speechSupported()||!text)return;
-  const synth=window.speechSynthesis;
-  const utterance=buildUtterance(text,voice);
-  activeUtterances.add(utterance);
-
-  utterance.onstart=()=>{
-    setSpeechStatus(voice?`Speaking with: ${voiceLabel(voice)}`:"Speaking with the phone's default installed voice.");
+  utterance.onerror=()=> {
+    const status=document.getElementById("speechStatus");
+    if(status)status.textContent="That voice failed to speak. Pick another installed voice and press Test selected voice.";
   };
-  utterance.onend=()=>releaseUtterance(utterance);
-  utterance.onerror=event=>{
-    releaseUtterance(utterance);
-    const code=String(event?.error||"unknown");
-    if(code==="canceled"||code==="interrupted")return;
-    if(allowFallback && voice){
-      setSpeechStatus("That voice failed. Retrying with the phone's default installed voice…");
-      setTimeout(()=>launchSpeech(text,null,false),30);
-    }else{
-      setSpeechStatus(`Speech failed (${code}). Check Android Text-to-speech output, then tap Test selected voice again.`);
-    }
-  };
-
-  try{
-    resumeSpeechEngine();
-    synth.speak(utterance);
-  }catch(error){
-    releaseUtterance(utterance);
-    if(allowFallback && voice)setTimeout(()=>launchSpeech(text,null,false),30);
-    else setSpeechStatus("Speech could not start on this phone.");
-  }
-}
-function speakCardText(text,force=false,userInitiated=false){
-  if((!speechSettings.enabled&&!force)||!speechSupported()||!text)return;
-  if(userInitiated)speechUnlocked=true;
-  if(!speechUnlocked && !userInitiated){
-    setSpeechStatus("Tap Test selected voice once to enable Android speech, then cards will read automatically.");
-    return;
-  }
-  refreshSpeechVoices();
-  const voice=selectedVoice();
-  const synth=window.speechSynthesis;
-
-  if(speechTimer){clearTimeout(speechTimer);speechTimer=null;}
-  resumeSpeechEngine();
-
-  // User-tapped tests start in the same interaction whenever possible.
-  if(userInitiated && !synth.speaking && !synth.pending){
-    launchSpeech(text,voice,true);
-    return;
-  }
-
-  // Replace older queued card speech without repeatedly canceling an idle Android engine.
-  try{
-    if(synth.speaking||synth.pending)synth.cancel();
-  }catch{}
-  speechTimer=setTimeout(()=>{
-    speechTimer=null;
-    launchSpeech(text,voice,true);
-  },45);
+  window.speechSynthesis.speak(utterance);
 }
 function saveSpeechSettings(){
   localStorage.setItem(SPEECH_KEY,JSON.stringify(speechSettings));
@@ -1006,34 +938,25 @@ function renderSpeechControls(){
   }
 
   toggle.disabled=false;
-  test.disabled=false;
+  test.disabled=!voicesReady || !selectedVoice();
   toggle.textContent=speechSettings.enabled?"🔊 Speech on":"🔇 Speech off";
   toggle.className=speechSettings.enabled?"primary":"secondary";
 
-  if(!voicesReady || !speechVoices.length){
-    voiceSelect.innerHTML='<option value="">Use phone default installed voice</option>';
-    voiceSelect.disabled=false;
-    voiceSelect.value="";
+  if(!voicesReady){
+    voiceSelect.innerHTML='<option value="">Loading installed voices…</option>';
+    voiceSelect.disabled=true;
   }else{
     voiceSelect.disabled=false;
-    voiceSelect.innerHTML='<option value="">Phone default installed voice</option>'+speechVoices.map(v=>
+    voiceSelect.innerHTML=speechVoices.map(v=>
       `<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}</option>`
     ).join("");
-    const chosen=speechVoices.find(v=>v.voiceURI===speechSettings.voiceURI);
-    voiceSelect.value=chosen?chosen.voiceURI:"";
+    const chosen=selectedVoice();
+    if(chosen)voiceSelect.value=chosen.voiceURI;
   }
-  if(!activeUtterances.size)status.textContent=describeVoiceState();
+  status.textContent=describeVoiceState();
 }
 if(speechSupported()){
-  try{window.speechSynthesis.addEventListener?.("voiceschanged",refreshSpeechVoices);}catch{}
-  window.addEventListener("pageshow",scheduleVoiceLoading);
-  window.addEventListener("focus",()=>{resumeSpeechEngine();scheduleVoiceLoading();});
-  document.addEventListener("visibilitychange",()=>{
-    if(!document.hidden){resumeSpeechEngine();scheduleVoiceLoading();}
-  });
-  const unlock=()=>{speechUnlocked=true;resumeSpeechEngine();};
-  document.addEventListener("pointerdown",unlock,{passive:true});
-  document.addEventListener("touchstart",unlock,{passive:true});
+  window.speechSynthesis.addEventListener?.("voiceschanged",refreshSpeechVoices);
   scheduleVoiceLoading();
 }
 function renderFamilyFilter(){
@@ -1107,36 +1030,26 @@ document.getElementById("shuffleFlash").addEventListener("click",startFlash);
 document.getElementById("flashMode").addEventListener("change",()=>renderFlash());
 document.getElementById("familyFilter").addEventListener("change",startFlash);
 document.getElementById("speechToggle").addEventListener("click",()=>{
-  speechUnlocked=true;
   speechSettings.enabled=!speechSettings.enabled;
   saveSpeechSettings();
   renderSpeechControls();
-  if(speechSettings.enabled)speakCardText(document.getElementById("frontText").textContent,true,true);
+  if(speechSettings.enabled)speakCardText(document.getElementById("frontText").textContent);
   else if(speechSupported())window.speechSynthesis.cancel();
 });
 document.getElementById("speechVoice").addEventListener("change",e=>{
-  speechUnlocked=true;
   speechSettings.voiceURI=e.target.value;
   saveSpeechSettings();
   renderSpeechControls();
-  speakCardText("Jarrah. Eucalyptus marginata.",true,true);
+  speakCardText("Jarrah. Eucalyptus marginata.",true);
 });
 document.getElementById("speechTest").addEventListener("click",()=>{
-  speechUnlocked=true;
-  resumeSpeechEngine();
-  speakCardText("Jarrah. Eucalyptus marginata. Marri. Corymbia calophylla.",true,true);
+  speakCardText("Jarrah. Eucalyptus marginata. Marri. Corymbia calophylla.",true);
 });
 document.getElementById("speechRefresh").addEventListener("click",()=>{
-  speechUnlocked=true;
   voicesReady=false;
   speechVoices=[];
   speechSettings.voiceURI="";
-  activeUtterances.clear();
-  if(speechSupported()){
-    try{window.speechSynthesis.cancel();}catch{}
-    resumeSpeechEngine();
-  }
-  saveSpeechSettings();
+  if(speechSupported())window.speechSynthesis.cancel();
   renderSpeechControls();
   scheduleVoiceLoading();
 });
