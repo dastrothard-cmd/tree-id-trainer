@@ -110,7 +110,7 @@ select,input,textarea{width:100%;border:1px solid var(--line);border-radius:11px
 .data-table th,.data-table td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 .data-table th{color:var(--muted);position:sticky;top:0;z-index:2;background:#fff;box-shadow:0 1px 0 var(--line)}
 .scroll{overflow:auto;max-height:430px;position:relative}
-code{background:#edf1ed;border-radius:6px;padding:2px 5px}
+code{background:#f4f0e4;color:#283126;border:1px solid rgba(72,88,65,.14);border-radius:6px;padding:2px 5px}
 .note{background:#fff7dc;border-left:4px solid var(--gold);padding:11px;border-radius:8px;font-size:13px}
 .footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:20px}
 .tutorial-step{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start;margin:14px 0}
@@ -461,8 +461,8 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Tree ID Trainer">
-<meta name="tree-id-trainer-version" content="15.13-v5-speech-restore">
-<meta name="tree-id-trainer-build" content="15.12">
+<meta name="tree-id-trainer-version" content="15.15-android-default-speech">
+<meta name="tree-id-trainer-build" content="15.15">
 
 </head>
 <body>
@@ -670,7 +670,7 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
       <button class="secondary" id="speechTest" type="button">▶ Test selected voice</button>
       <button class="secondary" id="speechRefresh" type="button">↻ Reload installed voices</button>
     </div>
-    <div class="hint" id="speechStatus">Loading voices from Android…</div>
+    <div class="hint" id="speechStatus">Phone default voice is recommended on Android.</div>
     <div class="stats"><span class="stat" id="flashPosition">Card 1</span><span class="stat" id="flashKnown">Known: 0</span><span class="stat" id="flashAgain">Again: 0</span></div>
     <div class="progressbar"><div id="flashProgress"></div></div>
   </div>
@@ -745,7 +745,7 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
   </div>
 </section>
 
-<div class="footer-note">Hosted Edition · Your tree list and settings stay in this browser on this device.</div>
+<div class="footer-note">Hosted Edition · v15.15 · Your tree list and settings stay in this browser on this device.</div>
 </main>
 
 <div class="update-banner" id="updateBanner">
@@ -814,14 +814,21 @@ document.getElementById("homeBtn").addEventListener("click",()=>showView("home")
 
 /* Flashcards */
 let flashDeck=[], flashIndex=0, flashKnown=0, flashAgain=0;
-const SPEECH_KEY = "tree-id-trainer-speech-v2";
-let speechSettings = Object.assign(
-  {enabled:false, voiceURI:"", rate:0.92},
-  loadJSON(SPEECH_KEY, loadJSON("tree-id-trainer-speech-v1", {}))
+const SPEECH_KEY = "tree-id-trainer-speech-v4";
+const previousSpeechSettings = loadJSON(
+  "tree-id-trainer-speech-v2",
+  loadJSON("tree-id-trainer-speech-v1", {})
 );
+let speechSettings = {
+  enabled: !!previousSpeechSettings.enabled,
+  voiceURI: "",
+  rate: Number(previousSpeechSettings.rate) || 0.95
+};
 let speechVoices = [];
 let voicesReady = false;
-let pendingSpeech = "";
+let activeUtterance = null;
+let speechStartTimer = null;
+let speechRunId = 0;
 
 function speechSupported(){
   return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
@@ -834,91 +841,122 @@ function sortVoices(list){
   return [...list].sort((a,b)=>{
     const aEnglish=String(a.lang||"").toLowerCase().startsWith("en") ? 0 : 1;
     const bEnglish=String(b.lang||"").toLowerCase().startsWith("en") ? 0 : 1;
-    return aEnglish-bEnglish || String(a.lang).localeCompare(String(b.lang)) || a.name.localeCompare(b.name);
+    const aLocal=a.localService ? 0 : 1;
+    const bLocal=b.localService ? 0 : 1;
+    return aEnglish-bEnglish || aLocal-bLocal || String(a.lang).localeCompare(String(b.lang)) || a.name.localeCompare(b.name);
   });
 }
-function englishVoices(){
-  return speechVoices.filter(v=>String(v.lang||"").toLowerCase().startsWith("en"));
-}
-function bestInstalledVoice(){
-  return (
-    speechVoices.find(v=>String(v.lang||"").toLowerCase()==="en-au" && v.localService) ||
-    speechVoices.find(v=>String(v.lang||"").toLowerCase()==="en-au") ||
-    speechVoices.find(v=>String(v.lang||"").toLowerCase()==="en-gb" && v.localService) ||
-    speechVoices.find(v=>String(v.lang||"").toLowerCase()==="en-gb") ||
-    speechVoices.find(v=>String(v.lang||"").toLowerCase()==="en-us" && v.localService) ||
-    speechVoices.find(v=>String(v.lang||"").toLowerCase()==="en-us") ||
-    englishVoices().find(v=>v.localService) ||
-    englishVoices()[0] ||
-    speechVoices.find(v=>v.localService) ||
-    speechVoices[0] ||
-    null
-  );
-}
 function selectedVoice(){
-  if(speechSettings.voiceURI){
-    const chosen=speechVoices.find(v=>v.voiceURI===speechSettings.voiceURI);
-    if(chosen)return chosen;
-  }
-  const fallback=bestInstalledVoice();
-  if(fallback)speechSettings.voiceURI=fallback.voiceURI;
-  return fallback;
-}
-function refreshSpeechVoices(){
-  if(!speechSupported())return;
-  const list=window.speechSynthesis.getVoices()||[];
-  if(list.length){
-    speechVoices=sortVoices(list);
-    voicesReady=true;
-    if(!speechSettings.voiceURI || !speechVoices.some(v=>v.voiceURI===speechSettings.voiceURI)){
-      const best=bestInstalledVoice();
-      speechSettings.voiceURI=best?best.voiceURI:"";
-      saveSpeechSettings();
-    }
-    renderSpeechControls();
-    if(pendingSpeech && speechSettings.enabled){
-      const text=pendingSpeech;pendingSpeech="";
-      setTimeout(()=>speakCardText(text),100);
-    }
-  }
-}
-function scheduleVoiceLoading(){
-  refreshSpeechVoices();
-  [150,400,900,1800,3500].forEach(ms=>setTimeout(refreshSpeechVoices,ms));
-}
-function describeVoiceState(){
-  if(!speechSupported())return"Speech is unavailable in this browser.";
-  if(!voicesReady)return"Waiting for Android to provide its installed voices…";
-  const chosen=selectedVoice();
-  if(!chosen)return"No usable voice is installed.";
-  return `Using: ${voiceLabel(chosen)}`;
-}
-function speakCardText(text, force=false){
-  if((!speechSettings.enabled && !force) || !speechSupported() || !text)return;
-  if(!voicesReady){
-    pendingSpeech=String(text);
-    scheduleVoiceLoading();
-    return;
-  }
-  const voice=selectedVoice();
-  if(!voice){
-    renderSpeechControls();
-    return;
-  }
-  window.speechSynthesis.cancel();
-  const utterance=new SpeechSynthesisUtterance(String(text));
-  utterance.voice=voice;
-  utterance.lang=voice.lang || "en-AU";
-  utterance.rate=Number(speechSettings.rate)||0.92;
-  utterance.pitch=1;
-  utterance.onerror=()=> {
-    const status=document.getElementById("speechStatus");
-    if(status)status.textContent="That voice failed to speak. Pick another installed voice and press Test selected voice.";
-  };
-  window.speechSynthesis.speak(utterance);
+  if(!speechSettings.voiceURI)return null;
+  return speechVoices.find(v=>v.voiceURI===speechSettings.voiceURI) || null;
 }
 function saveSpeechSettings(){
   localStorage.setItem(SPEECH_KEY,JSON.stringify(speechSettings));
+}
+function setSpeechStatus(text){
+  const status=document.getElementById("speechStatus");
+  if(status)status.textContent=text;
+}
+function refreshSpeechVoices(){
+  if(!speechSupported())return;
+  let list=[];
+  try{list=window.speechSynthesis.getVoices()||[];}catch{}
+  speechVoices=sortVoices(list);
+  voicesReady=speechVoices.length>0;
+  if(speechSettings.voiceURI && !speechVoices.some(v=>v.voiceURI===speechSettings.voiceURI)){
+    speechSettings.voiceURI="";
+    saveSpeechSettings();
+  }
+  renderSpeechControls();
+}
+function scheduleVoiceLoading(){
+  refreshSpeechVoices();
+  [100,300,700,1400,2800,5000].forEach(ms=>setTimeout(refreshSpeechVoices,ms));
+}
+function describeVoiceState(){
+  if(!speechSupported())return "Speech is unavailable in this browser.";
+  const chosen=selectedVoice();
+  if(chosen)return `Using: ${voiceLabel(chosen)}`;
+  if(!voicesReady)return "Using the phone default voice. Android is still loading its named voice list.";
+  return "Using the phone default voice — recommended on Android.";
+}
+function releaseUtterance(runId){
+  if(runId!==speechRunId)return;
+  activeUtterance=null;
+  if(!document.getElementById("speechStatus")?.textContent.startsWith("Speech failed")){
+    setSpeechStatus(describeVoiceState());
+  }
+}
+function startSpeechAttempt(text,voice,allowDefaultRetry){
+  if(!speechSupported()||!text)return;
+  const synth=window.speechSynthesis;
+  const runId=++speechRunId;
+  const utterance=new SpeechSynthesisUtterance(String(text));
+  activeUtterance=utterance;
+
+  // Leaving voice and lang unset is the most compatible Android path.
+  if(voice)utterance.voice=voice;
+  utterance.rate=Math.min(1.4,Math.max(0.65,Number(speechSettings.rate)||0.95));
+  utterance.pitch=1;
+  utterance.volume=1;
+
+  utterance.onstart=()=>{
+    if(runId===speechRunId)setSpeechStatus(voice ? `Speaking with ${voice.name}…` : "Speaking with phone default voice…");
+  };
+  utterance.onend=()=>releaseUtterance(runId);
+  utterance.onerror=event=>{
+    if(runId!==speechRunId)return;
+    const code=event?.error || "unknown";
+    activeUtterance=null;
+
+    if(voice && allowDefaultRetry && code!=="canceled" && code!=="interrupted"){
+      speechSettings.voiceURI="";
+      saveSpeechSettings();
+      renderSpeechControls();
+      setSpeechStatus("Selected voice failed. Retrying with phone default voice…");
+      speechStartTimer=setTimeout(()=>startSpeechAttempt(text,null,false),180);
+      return;
+    }
+
+    if(code==="canceled" || code==="interrupted"){
+      setSpeechStatus(describeVoiceState());
+      return;
+    }
+    setSpeechStatus(`Speech failed (${code}). Try Phone default voice, then tap Test selected voice again.`);
+  };
+
+  try{synth.resume();}catch{}
+  try{
+    synth.speak(utterance);
+  }catch(error){
+    activeUtterance=null;
+    setSpeechStatus(`Speech failed (${error?.message || "speak error"}).`);
+  }
+}
+function speakCardText(text,force=false){
+  if((!speechSettings.enabled&&!force)||!speechSupported()||!text)return;
+  clearTimeout(speechStartTimer);
+  refreshSpeechVoices();
+  const synth=window.speechSynthesis;
+  const voice=selectedVoice();
+
+  // Never cancel an idle engine. On Android, cancel()+speak() in the same instant can fail.
+  if(synth.speaking || synth.pending){
+    try{synth.cancel();}catch{}
+    speechStartTimer=setTimeout(()=>startSpeechAttempt(text,voice,true),220);
+  }else{
+    // Direct call remains inside the user's tap event for Chrome's activation requirement.
+    startSpeechAttempt(text,voice,true);
+  }
+}
+function stopSpeech(){
+  clearTimeout(speechStartTimer);
+  speechRunId++;
+  activeUtterance=null;
+  if(speechSupported()){
+    try{window.speechSynthesis.cancel();}catch{}
+  }
+  setSpeechStatus(describeVoiceState());
 }
 function renderSpeechControls(){
   const toggle=document.getElementById("speechToggle");
@@ -938,25 +976,23 @@ function renderSpeechControls(){
   }
 
   toggle.disabled=false;
-  test.disabled=!voicesReady || !selectedVoice();
+  test.disabled=false;
+  voiceSelect.disabled=false;
   toggle.textContent=speechSettings.enabled?"🔊 Speech on":"🔇 Speech off";
   toggle.className=speechSettings.enabled?"primary":"secondary";
 
-  if(!voicesReady){
-    voiceSelect.innerHTML='<option value="">Loading installed voices…</option>';
-    voiceSelect.disabled=true;
-  }else{
-    voiceSelect.disabled=false;
-    voiceSelect.innerHTML=speechVoices.map(v=>
-      `<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}</option>`
-    ).join("");
-    const chosen=selectedVoice();
-    if(chosen)voiceSelect.value=chosen.voiceURI;
-  }
-  status.textContent=describeVoiceState();
+  voiceSelect.innerHTML=
+    '<option value="">Phone default voice — recommended</option>'+
+    speechVoices.map(v=>`<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}</option>`).join("");
+  voiceSelect.value=speechSettings.voiceURI || "";
+
+  if(!activeUtterance)status.textContent=describeVoiceState();
 }
 if(speechSupported()){
-  window.speechSynthesis.addEventListener?.("voiceschanged",refreshSpeechVoices);
+  try{window.speechSynthesis.addEventListener?.("voiceschanged",refreshSpeechVoices);}catch{}
+  window.addEventListener("pageshow",scheduleVoiceLoading);
+  window.addEventListener("focus",refreshSpeechVoices);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshSpeechVoices();});
   scheduleVoiceLoading();
 }
 function renderFamilyFilter(){
@@ -1033,8 +1069,11 @@ document.getElementById("speechToggle").addEventListener("click",()=>{
   speechSettings.enabled=!speechSettings.enabled;
   saveSpeechSettings();
   renderSpeechControls();
-  if(speechSettings.enabled)speakCardText(document.getElementById("frontText").textContent);
-  else if(speechSupported())window.speechSynthesis.cancel();
+  if(speechSettings.enabled){
+    speakCardText(document.getElementById("frontText").textContent,true);
+  }else{
+    stopSpeech();
+  }
 });
 document.getElementById("speechVoice").addEventListener("change",e=>{
   speechSettings.voiceURI=e.target.value;
@@ -1046,12 +1085,13 @@ document.getElementById("speechTest").addEventListener("click",()=>{
   speakCardText("Jarrah. Eucalyptus marginata. Marri. Corymbia calophylla.",true);
 });
 document.getElementById("speechRefresh").addEventListener("click",()=>{
-  voicesReady=false;
   speechVoices=[];
+  voicesReady=false;
   speechSettings.voiceURI="";
-  if(speechSupported())window.speechSynthesis.cancel();
+  saveSpeechSettings();
   renderSpeechControls();
   scheduleVoiceLoading();
+  setSpeechStatus("Reloading installed voices. Phone default voice is ready now.");
 });
 
 /* Generic matching game */
