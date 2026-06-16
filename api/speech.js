@@ -1,5 +1,32 @@
 const OPENAI_SPEECH_URL = "https://api.openai.com/v1/audio/speech";
 
+const VOICE_PROFILES = {
+  australian: {
+    voice: "marin",
+    instructions:
+      "Speak clearly in a natural Australian English accent at a calm educational pace. " +
+      "Pronounce botanical Latin names carefully and distinctly."
+  },
+  british: {
+    voice: "cedar",
+    instructions:
+      "Speak clearly and naturally in a contemporary British English accent at a calm educational pace. " +
+      "Pronounce botanical Latin names carefully and distinctly."
+  },
+  american: {
+    voice: "marin",
+    instructions:
+      "Speak clearly and naturally in a General American English accent at a calm educational pace. " +
+      "Pronounce botanical Latin names carefully and distinctly."
+  },
+  german: {
+    voice: "cedar",
+    instructions:
+      "Speak clear English with a natural, restrained German accent at a calm educational pace. " +
+      "Do not exaggerate or parody the accent. Pronounce botanical Latin names carefully and distinctly."
+  }
+};
+
 function sameOrigin(req) {
   const origin = req.headers.origin;
   const host = req.headers.host;
@@ -21,10 +48,13 @@ module.exports = async function handler(req, res) {
     return res.status(403).json({ error: "Request origin not allowed." });
   }
   if (!process.env.OPENAI_API_KEY) {
-    return res.status(503).json({ error: "App voice is not connected." });
+    return res.status(503).json({ error: "AI voices are not connected." });
   }
 
   const text = String(req.body?.text || "").trim().slice(0, 320);
+  const profileId = String(req.body?.profile || "australian").toLowerCase();
+  const profile = VOICE_PROFILES[profileId] || VOICE_PROFILES.australian;
+
   if (!text) {
     return res.status(400).json({ error: "Speech text is required." });
   }
@@ -38,18 +68,15 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4o-mini-tts",
-        voice: "marin",
+        voice: profile.voice,
         input: text,
-        instructions:
-          "Use a consistent natural Australian English accent for the entire utterance. " +
-          "Do not drift into an American, Canadian, British or other accent. " +
-          "Speak at a calm educational pace and pronounce botanical Latin names carefully and distinctly.",
-        response_format: "mp3"
+        instructions: profile.instructions,
+        response_format: "wav"
       })
     });
 
     if (!response.ok) {
-      let message = `App voice request failed (${response.status}).`;
+      let message = `AI voice request failed (${response.status}).`;
       try {
         const body = await response.json();
         if (body?.error?.message) message = body.error.message;
@@ -58,12 +85,12 @@ module.exports = async function handler(req, res) {
     }
 
     const audio = Buffer.from(await response.arrayBuffer());
-    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Content-Type", "audio/wav");
     res.setHeader("Content-Length", String(audio.length));
     return res.status(200).send(audio);
   } catch (error) {
     return res.status(500).json({
-      error: error?.message || "The App voice request failed."
+      error: error?.message || "The AI voice request failed."
     });
   }
 };

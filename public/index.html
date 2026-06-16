@@ -451,6 +451,48 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
   .mode-copy{height:116px;min-height:116px;padding:14px 16px!important}
 }
 
+
+.help-tip{
+  position:relative;
+  padding-right:34px!important;
+  overflow:visible;
+}
+.help-tip::after{
+  content:"ⓘ";
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:13px;
+  font-weight:850;
+  opacity:.72;
+}
+.ui-help-bubble{
+  position:fixed;
+  left:0;
+  top:0;
+  z-index:10000;
+  width:max-content;
+  max-width:min(330px,calc(100vw - 24px));
+  padding:10px 12px;
+  border-radius:11px;
+  background:#101511;
+  color:#f6f1e7;
+  border:1px solid rgba(214,168,63,.34);
+  box-shadow:0 12px 28px rgba(0,0,0,.38);
+  font-size:12px;
+  line-height:1.42;
+  text-align:left;
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(4px);
+  transition:opacity .12s,transform .12s;
+}
+.ui-help-bubble.visible{opacity:1;transform:translateY(0)}
+body.theme-journal .ui-help-bubble{
+  background:#fff6e2;color:#3e2f1f;border-color:rgba(114,82,48,.3)
+}
+
 </style>
 
 <link rel="manifest" href="/app.webmanifest">
@@ -461,8 +503,8 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Tree ID Trainer">
-<meta name="tree-id-trainer-version" content="15.19-universal-app-voice-cache">
-<meta name="tree-id-trainer-build" content="15.19">
+<meta name="tree-id-trainer-version" content="15.20-ai-accent-voices">
+<meta name="tree-id-trainer-build" content="15.20">
 
 </head>
 <body>
@@ -661,19 +703,36 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
       <div><label>Family filter</label><select id="familyFilter"><option value="">All families</option></select></div>
     </div>
     <div class="row" style="margin-top:10px">
-      <div><label>Voice source</label><select id="speechVoice">
-        <option value="__app_voice__">App voice — recommended</option>
-      </select></div>
-      <div><label>Read cards aloud</label><button class="secondary" id="speechToggle" type="button" style="width:100%">🔇 Speech off</button></div>
+      <div>
+        <label>Voice source</label>
+        <select id="speechVoice" title="AI accents appear first. Device voices appear below when this browser provides them.">
+          <option value="__ai_voice__:australian">AI voice — Australian</option>
+        </select>
+      </div>
+      <div>
+        <label>Read cards aloud</label>
+        <button class="secondary help-tip" id="speechToggle" type="button" style="width:100%"
+          data-help="Turns automatic reading on or off. When on, the front is read when a card appears and the answer is read when you flip it."
+          title="Turns automatic card reading on or off.">🔇 Speech off</button>
+      </div>
     </div>
     <div class="row" style="margin-top:10px">
-      <button class="secondary" id="speechTest" type="button">▶ Test selected voice</button>
-      <button class="secondary" id="speechRefresh" type="button">↻ Reload device voices</button>
-      <button class="secondary" id="speechCacheList" type="button">⬇ Cache current list</button>
+      <button class="secondary help-tip" id="speechTest" type="button"
+        data-help="Plays a short sample using the currently selected AI accent or device voice."
+        title="Test the currently selected voice.">▶ Test selected voice</button>
+      <button class="secondary help-tip" id="speechRefresh" type="button"
+        data-help="Asks this browser to reload its available device voices. Device-voice support varies between browsers and machines."
+        title="Reload the device voices supplied by this browser.">↻ Reload device voices</button>
+      <button class="secondary help-tip" id="speechCacheList" type="button"
+        data-help="Creates and saves recordings for every common name, binomial, genus and family in your current list using the selected AI accent. This uses internet and API credit once; saved recordings then play from this device."
+        title="Save the current tree list as an offline voice pack in the selected AI accent.">⬇ Cache current list</button>
+      <button class="secondary help-tip" id="speechClearCache" type="button"
+        data-help="Deletes saved AI recordings from this browser or device only. It does not delete trees, scores, settings or counters. Recordings will be generated again when needed."
+        title="Clear saved AI recordings without deleting app data.">🗑 Clear AI cache</button>
     </div>
-    <div class="hint" id="speechStatus">App voice works across devices and stores each recording after its first use.</div>
-    <div class="stats"><span class="stat" id="voiceCacheStat">App voice cache: checking…</span></div>
-    <div class="hint" id="cloudVoiceDisclosure" style="font-size:11px;margin-top:4px">App voice is AI-generated. Internet is needed only the first time each name is recorded on this device; saved recordings then play faster and can work offline. Device voices are optional where supported by the browser.</div>
+    <div class="hint" id="speechStatus">AI accents work across devices and save each recording after its first use.</div>
+    <div class="stats"><span class="stat" id="voiceCacheStat">AI voice cache: checking…</span></div>
+    <div class="hint" id="cloudVoiceDisclosure" style="font-size:11px;margin-top:4px">AI voices are generated, not human recordings. Internet is needed only the first time each name is recorded in the selected accent on this device; saved recordings then play faster and can work offline. Device voices remain optional where supported by the browser.</div>
     <div class="stats"><span class="stat" id="flashPosition">Card 1</span><span class="stat" id="flashKnown">Known: 0</span><span class="stat" id="flashAgain">Again: 0</span></div>
     <div class="progressbar"><div id="flashProgress"></div></div>
   </div>
@@ -748,7 +807,7 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
   </div>
 </section>
 
-<div class="footer-note">Hosted Edition · v15.19 · Your tree list and settings stay in this browser on this device.</div>
+<div class="footer-note">Hosted Edition · v15.20 · Your tree list and settings stay in this browser on this device.</div>
 </main>
 
 <div class="update-banner" id="updateBanner">
@@ -817,54 +876,112 @@ document.getElementById("homeBtn").addEventListener("click",()=>showView("home")
 
 /* Flashcards */
 let flashDeck=[], flashIndex=0, flashKnown=0, flashAgain=0;
-const SPEECH_KEY = "tree-id-trainer-speech-v6";
-const APP_VOICE_VALUE = "__app_voice__";
+const SPEECH_KEY = "tree-id-trainer-speech-v7";
+const AI_VOICE_PREFIX = "__ai_voice__:";
+const DEFAULT_AI_PROFILE = "australian";
+const AI_VOICE_PROFILES = {
+  australian:{id:"australian",label:"AI voice — Australian"},
+  british:{id:"british",label:"AI voice — British"},
+  american:{id:"american",label:"AI voice — American"},
+  german:{id:"german",label:"AI voice — German-accented English"}
+};
 const DEVICE_DEFAULT_VALUE = "__device_default__";
-const APP_VOICE_DB = "tree-id-trainer-app-voice-v1";
-const APP_VOICE_STORE = "clips";
-const APP_VOICE_QUEUE_KEY = "tree-id-trainer-app-voice-queue-v1";
-const APP_VOICE_FORMAT_VERSION = "marin-au-v2";
+const AI_VOICE_DB = "tree-id-trainer-app-voice-v1";
+const AI_VOICE_STORE = "clips";
+const AI_VOICE_QUEUE_KEY = "tree-id-trainer-ai-voice-queue-v2";
+const AI_VOICE_FORMAT_VERSION = "natural-ai-accents-v1";
 
 const previousSpeechSettings = loadJSON(
-  "tree-id-trainer-speech-v5",
-  loadJSON("tree-id-trainer-speech-v4",
-    loadJSON("tree-id-trainer-speech-v2",
-      loadJSON("tree-id-trainer-speech-v1", {})
+  "tree-id-trainer-speech-v6",
+  loadJSON("tree-id-trainer-speech-v5",
+    loadJSON("tree-id-trainer-speech-v4",
+      loadJSON("tree-id-trainer-speech-v2",
+        loadJSON("tree-id-trainer-speech-v1", {})
+      )
     )
   )
 );
 
-let previousVoice = String(previousSpeechSettings.voiceURI || "");
-if(
-  !previousVoice ||
-  previousVoice === "__cloud_australian__" ||
-  previousVoice === "__native_default__" ||
-  previousVoice.startsWith("__native_voice__:")
-){
-  previousVoice = APP_VOICE_VALUE;
+function aiVoiceValue(profileId){
+  const id=AI_VOICE_PROFILES[profileId] ? profileId : DEFAULT_AI_PROFILE;
+  return AI_VOICE_PREFIX+id;
+}
+function aiProfileFromValue(value){
+  const text=String(value||"");
+  if(!text.startsWith(AI_VOICE_PREFIX))return null;
+  const id=text.slice(AI_VOICE_PREFIX.length);
+  return AI_VOICE_PROFILES[id] ? id : null;
+}
+function aiProfileLabel(profileId){
+  return AI_VOICE_PROFILES[profileId]?.label || AI_VOICE_PROFILES[DEFAULT_AI_PROFILE].label;
 }
 
-let speechSettings = {
-  enabled: !!previousSpeechSettings.enabled,
-  voiceURI: previousVoice,
-  rate: Number(previousSpeechSettings.rate) || 0.92
+let previousVoice=String(previousSpeechSettings.voiceURI||"");
+let previousAiProfile=String(previousSpeechSettings.aiProfile||"");
+if(!AI_VOICE_PROFILES[previousAiProfile]){
+  previousAiProfile=aiProfileFromValue(previousVoice)||DEFAULT_AI_PROFILE;
+}
+if(
+  !previousVoice ||
+  previousVoice==="__app_voice__" ||
+  previousVoice==="__cloud_australian__" ||
+  previousVoice==="__native_default__" ||
+  previousVoice.startsWith("__native_voice__:")
+){
+  previousVoice=aiVoiceValue(previousAiProfile);
+}
+
+let speechSettings={
+  enabled:!!previousSpeechSettings.enabled,
+  voiceURI:previousVoice,
+  aiProfile:previousAiProfile,
+  rate:Number(previousSpeechSettings.rate)||0.92
 };
 
-let speechVoices = [];
-let voicesReady = false;
-let deviceUtterance = null;
-let appAudioContext = null;
-let appAudioSource = null;
-let appHtmlAudio = null;
-let appAudioObjectUrl = "";
-let appPlaybackId = 0;
-let audioDbPromise = null;
-let cacheCountTimer = null;
-let backgroundVoiceQueue = loadJSON(APP_VOICE_QUEUE_KEY, []);
-let backgroundVoiceRunning = false;
-let voicePackProgress = null;
-const appVoiceRequests = new Map();
+let speechVoices=[];
+let voicesReady=false;
+let deviceUtterance=null;
+let appAudioContext=null;
+let appAudioSource=null;
+let appHtmlAudio=null;
+let appAudioObjectUrl="";
+let appPlaybackId=0;
+let audioDbPromise=null;
+let cacheCountTimer=null;
+let backgroundVoiceRunning=false;
+let voicePackProgress=null;
+let voiceCacheGeneration=0;
+const appVoiceRequests=new Map();
 
+function normaliseAudioText(text){
+  return String(text||"").normalize("NFKC").trim().replace(/\s+/g," ");
+}
+function normaliseQueueItem(item){
+  if(typeof item==="string"){
+    const text=normaliseAudioText(item);
+    return text ? {text,profile:DEFAULT_AI_PROFILE} : null;
+  }
+  if(!item||typeof item!=="object")return null;
+  const text=normaliseAudioText(item.text);
+  const profile=AI_VOICE_PROFILES[item.profile] ? item.profile : DEFAULT_AI_PROFILE;
+  return text ? {text,profile} : null;
+}
+const oldQueue=loadJSON(AI_VOICE_QUEUE_KEY,[]);
+let backgroundVoiceQueue=(Array.isArray(oldQueue)?oldQueue:[])
+  .map(normaliseQueueItem).filter(Boolean);
+
+function selectedAiProfile(){
+  return aiProfileFromValue(speechSettings.voiceURI);
+}
+function activeAiProfile(){
+  const selected=selectedAiProfile();
+  if(selected)return selected;
+  return AI_VOICE_PROFILES[speechSettings.aiProfile]
+    ? speechSettings.aiProfile : DEFAULT_AI_PROFILE;
+}
+function aiVoiceSelected(){
+  return !!selectedAiProfile();
+}
 function setSpeechStatus(text){
   const el=document.getElementById("speechStatus");
   if(el)el.textContent=text;
@@ -877,7 +994,7 @@ function speechSupported(){
 }
 function voiceLabel(v){
   const local=v.localService ? "device" : "network";
-  return `${v.name} — ${v.lang || "unknown"} (${local})`;
+  return `${v.name} — ${v.lang||"unknown"} (${local})`;
 }
 function sortVoices(list){
   return [...list].sort((a,b)=>{
@@ -892,9 +1009,9 @@ function sortVoices(list){
 }
 function selectedDeviceVoice(){
   if(!speechSettings.voiceURI ||
-     speechSettings.voiceURI===APP_VOICE_VALUE ||
+     aiVoiceSelected() ||
      speechSettings.voiceURI===DEVICE_DEFAULT_VALUE)return null;
-  return speechVoices.find(v=>v.voiceURI===speechSettings.voiceURI) || null;
+  return speechVoices.find(v=>v.voiceURI===speechSettings.voiceURI)||null;
 }
 function refreshSpeechVoices(){
   if(!speechSupported()){
@@ -910,11 +1027,11 @@ function refreshSpeechVoices(){
   }
   voicesReady=speechVoices.length>0;
   if(
-    speechSettings.voiceURI!==APP_VOICE_VALUE &&
+    !aiVoiceSelected() &&
     speechSettings.voiceURI!==DEVICE_DEFAULT_VALUE &&
     !speechVoices.some(v=>v.voiceURI===speechSettings.voiceURI)
   ){
-    speechSettings.voiceURI=APP_VOICE_VALUE;
+    speechSettings.voiceURI=aiVoiceValue(activeAiProfile());
     saveSpeechSettings();
   }
   renderSpeechControls();
@@ -924,18 +1041,21 @@ function scheduleVoiceLoading(){
   [100,300,700,1400,2800,5000].forEach(ms=>setTimeout(refreshSpeechVoices,ms));
 }
 function describeVoiceState(){
-  if(speechSettings.voiceURI===APP_VOICE_VALUE)return "Using App voice.";
-  if(speechSettings.voiceURI===DEVICE_DEFAULT_VALUE)return "Using the browser's device-default voice.";
+  const profile=selectedAiProfile();
+  if(profile)return `Using ${aiProfileLabel(profile)}.`;
+  if(speechSettings.voiceURI===DEVICE_DEFAULT_VALUE){
+    return "Using the browser's device-default voice.";
+  }
   const voice=selectedDeviceVoice();
-  return voice ? `Using device voice: ${voiceLabel(voice)}` : "Using App voice.";
+  return voice
+    ? `Using device voice: ${voiceLabel(voice)}`
+    : `Using ${aiProfileLabel(activeAiProfile())}.`;
 }
 
-/* App voice cache */
-function normaliseAudioText(text){
-  return String(text||"").normalize("NFKC").trim().replace(/\s+/g," ");
-}
-function appVoiceCacheKey(text){
-  return `${APP_VOICE_FORMAT_VERSION}:${normaliseAudioText(text).toLowerCase()}`;
+/* Accent-specific AI cache */
+function aiVoiceCacheKey(text,profileId=activeAiProfile()){
+  const profile=AI_VOICE_PROFILES[profileId] ? profileId : DEFAULT_AI_PROFILE;
+  return `${AI_VOICE_FORMAT_VERSION}:${profile}:${normaliseAudioText(text).toLowerCase()}`;
 }
 function openAudioDb(){
   if(audioDbPromise)return audioDbPromise;
@@ -944,11 +1064,11 @@ function openAudioDb(){
       reject(new Error("Local audio storage is unavailable."));
       return;
     }
-    const request=indexedDB.open(APP_VOICE_DB,1);
+    const request=indexedDB.open(AI_VOICE_DB,1);
     request.onupgradeneeded=()=>{
       const db=request.result;
-      if(!db.objectStoreNames.contains(APP_VOICE_STORE)){
-        db.createObjectStore(APP_VOICE_STORE);
+      if(!db.objectStoreNames.contains(AI_VOICE_STORE)){
+        db.createObjectStore(AI_VOICE_STORE);
       }
     };
     request.onsuccess=()=>resolve(request.result);
@@ -956,13 +1076,13 @@ function openAudioDb(){
   });
   return audioDbPromise;
 }
-async function getCachedAppVoice(text){
-  const key=appVoiceCacheKey(text);
+async function getCachedAiVoice(text,profileId=activeAiProfile()){
+  const key=aiVoiceCacheKey(text,profileId);
   try{
     const db=await openAudioDb();
     return await new Promise((resolve,reject)=>{
-      const tx=db.transaction(APP_VOICE_STORE,"readonly");
-      const req=tx.objectStore(APP_VOICE_STORE).get(key);
+      const tx=db.transaction(AI_VOICE_STORE,"readonly");
+      const req=tx.objectStore(AI_VOICE_STORE).get(key);
       req.onsuccess=()=>resolve(req.result||null);
       req.onerror=()=>reject(req.error);
     });
@@ -970,31 +1090,63 @@ async function getCachedAppVoice(text){
     return null;
   }
 }
-async function storeCachedAppVoice(text,blob){
-  const key=appVoiceCacheKey(text);
+async function storeCachedAiVoice(text,blob,profileId,generation){
+  if(generation!==voiceCacheGeneration)return;
+  const key=aiVoiceCacheKey(text,profileId);
   try{
     const db=await openAudioDb();
     await new Promise((resolve,reject)=>{
-      const tx=db.transaction(APP_VOICE_STORE,"readwrite");
-      tx.objectStore(APP_VOICE_STORE).put(blob,key);
+      const tx=db.transaction(AI_VOICE_STORE,"readwrite");
+      tx.objectStore(AI_VOICE_STORE).put(blob,key);
       tx.oncomplete=resolve;
       tx.onerror=()=>reject(tx.error);
     });
     scheduleCacheCountUpdate();
   }catch{}
 }
-async function countCachedAppVoices(){
+async function countCachedAiVoices(profileId=activeAiProfile()){
+  const prefix=`${AI_VOICE_FORMAT_VERSION}:${profileId}:`;
   try{
     const db=await openAudioDb();
     return await new Promise((resolve,reject)=>{
-      const tx=db.transaction(APP_VOICE_STORE,"readonly");
-      const req=tx.objectStore(APP_VOICE_STORE).count();
-      req.onsuccess=()=>resolve(req.result||0);
+      const tx=db.transaction(AI_VOICE_STORE,"readonly");
+      const req=tx.objectStore(AI_VOICE_STORE).getAllKeys();
+      req.onsuccess=()=>resolve(
+        (req.result||[]).filter(key=>String(key).startsWith(prefix)).length
+      );
       req.onerror=()=>reject(req.error);
     });
   }catch{
     return 0;
   }
+}
+async function clearAllAiVoiceCache(){
+  const ok=confirm(
+    "Clear all saved AI accent recordings from this browser/device?\n\n"+
+    "Your tree list, scores, settings and counters will not be deleted. "+
+    "Recordings will be generated again when needed."
+  );
+  if(!ok)return;
+
+  stopAppVoice();
+  voiceCacheGeneration++;
+  backgroundVoiceQueue=[];
+  voicePackProgress=null;
+  persistBackgroundQueue();
+
+  try{
+    const db=await openAudioDb();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(AI_VOICE_STORE,"readwrite");
+      tx.objectStore(AI_VOICE_STORE).clear();
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
+    });
+    setSpeechStatus("AI voice cache cleared. Recordings will regenerate when needed.");
+  }catch{
+    setSpeechStatus("The AI voice cache could not be cleared in this browser.");
+  }
+  scheduleCacheCountUpdate();
 }
 function scheduleCacheCountUpdate(){
   clearTimeout(cacheCountTimer);
@@ -1003,33 +1155,40 @@ function scheduleCacheCountUpdate(){
 async function updateVoiceCacheStat(){
   const el=document.getElementById("voiceCacheStat");
   if(!el)return;
-  const count=await countCachedAppVoices();
-  if(voicePackProgress){
-    el.textContent=`App voice cache: ${count} saved · pack ${voicePackProgress.done}/${voicePackProgress.total}`;
+  const profile=activeAiProfile();
+  const count=await countCachedAiVoices(profile);
+  const accent=AI_VOICE_PROFILES[profile].label.replace("AI voice — ","");
+  if(voicePackProgress&&voicePackProgress.profile===profile){
+    el.textContent=`${accent} AI cache: ${count} saved · pack ${voicePackProgress.done}/${voicePackProgress.total}`;
   }else{
-    el.textContent=`App voice cache: ${count} recording${count===1?"":"s"} saved`;
+    el.textContent=`${accent} AI cache: ${count} recording${count===1?"":"s"} saved`;
   }
 }
-async function requestAppVoiceBlob(text){
+async function requestAiVoiceBlob(text,profileId=activeAiProfile()){
   const clean=normaliseAudioText(text);
+  const profile=AI_VOICE_PROFILES[profileId] ? profileId : DEFAULT_AI_PROFILE;
   if(!clean)throw new Error("Nothing to speak.");
 
-  const key=appVoiceCacheKey(clean);
-  const cached=await getCachedAppVoice(clean);
+  const key=aiVoiceCacheKey(clean,profile);
+  const cached=await getCachedAiVoice(clean,profile);
   if(cached)return cached;
   if(appVoiceRequests.has(key))return appVoiceRequests.get(key);
 
+  const generation=voiceCacheGeneration;
   const request=(async()=>{
     if(!navigator.onLine){
-      throw new Error("This recording is not cached yet. Connect to the internet once to create it.");
+      throw new Error(
+        `This ${AI_VOICE_PROFILES[profile].label} recording is not cached yet. `+
+        "Connect to the internet once to create it."
+      );
     }
     const response=await fetch("/api/speech",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({text:clean})
+      body:JSON.stringify({text:clean,profile})
     });
     if(!response.ok){
-      let message=`App voice failed (${response.status}).`;
+      let message=`AI voice failed (${response.status}).`;
       try{
         const body=await response.json();
         if(body?.error)message=body.error;
@@ -1037,7 +1196,7 @@ async function requestAppVoiceBlob(text){
       throw new Error(message);
     }
     const blob=await response.blob();
-    await storeCachedAppVoice(clean,blob);
+    await storeCachedAiVoice(clean,blob,profile,generation);
     return blob;
   })().finally(()=>appVoiceRequests.delete(key));
 
@@ -1112,27 +1271,36 @@ async function playBlobWithUniversalAudio(blob,playbackId){
     }
   };
   appHtmlAudio.onerror=()=>{
-    if(playbackId===appPlaybackId)setSpeechStatus("This browser could not play the saved App voice recording.");
+    if(playbackId===appPlaybackId){
+      setSpeechStatus("This browser could not play the saved AI recording.");
+    }
   };
   await appHtmlAudio.play();
 }
-async function speakWithAppVoice(text){
+async function speakWithAiVoice(text,profileId=activeAiProfile()){
   const clean=normaliseAudioText(text);
+  const profile=AI_VOICE_PROFILES[profileId] ? profileId : DEFAULT_AI_PROFILE;
   if(!clean)return;
+
   stopDeviceVoice();
   stopAppVoice();
   const playbackId=appPlaybackId;
   await unlockAppAudio();
 
   try{
-    const cached=await getCachedAppVoice(clean);
-    setSpeechStatus(cached ? "Playing saved App voice…" : "Creating and saving App voice recording…");
-    const blob=cached || await requestAppVoiceBlob(clean);
+    const cached=await getCachedAiVoice(clean,profile);
+    const accent=AI_VOICE_PROFILES[profile].label.replace("AI voice — ","");
+    setSpeechStatus(
+      cached
+        ? `Playing saved ${accent} AI voice…`
+        : `Creating and saving ${accent} AI voice recording…`
+    );
+    const blob=cached||await requestAiVoiceBlob(clean,profile);
     if(playbackId!==appPlaybackId)return;
     await playBlobWithUniversalAudio(blob,playbackId);
   }catch(error){
     if(playbackId===appPlaybackId){
-      setSpeechStatus(error?.message || "App voice failed.");
+      setSpeechStatus(error?.message||"AI voice failed.");
     }
   }
 }
@@ -1145,11 +1313,15 @@ function stopDeviceVoice(){
   }
 }
 function deviceVoiceFailed(text,error){
-  speechSettings.voiceURI=APP_VOICE_VALUE;
+  const profile=activeAiProfile();
+  speechSettings.voiceURI=aiVoiceValue(profile);
   saveSpeechSettings();
   renderSpeechControls();
-  setSpeechStatus(`Device voice failed (${error||"synthesis error"}). Falling back to App voice…`);
-  setTimeout(()=>speakWithAppVoice(text),120);
+  setSpeechStatus(
+    `Device voice failed (${error||"synthesis error"}). `+
+    `Falling back to ${aiProfileLabel(profile)}…`
+  );
+  setTimeout(()=>speakWithAiVoice(text,profile),120);
 }
 function speakWithDeviceVoice(text){
   if(!speechSupported()){
@@ -1171,7 +1343,9 @@ function speakWithDeviceVoice(text){
   utterance.rate=Math.min(1.4,Math.max(0.65,Number(speechSettings.rate)||0.92));
   utterance.pitch=1;
   utterance.volume=1;
-  utterance.onstart=()=>setSpeechStatus(voice ? `Speaking with ${voice.name}…` : "Speaking with device-default voice…");
+  utterance.onstart=()=>setSpeechStatus(
+    voice ? `Speaking with ${voice.name}…` : "Speaking with device-default voice…"
+  );
   utterance.onend=()=>{
     deviceUtterance=null;
     setSpeechStatus(describeVoiceState());
@@ -1183,15 +1357,18 @@ function speakWithDeviceVoice(text){
   };
   deviceUtterance=utterance;
   setTimeout(()=>{
-    try{synth.speak(utterance);}catch(error){deviceVoiceFailed(text,error?.message||"speak error");}
+    try{synth.speak(utterance);}
+    catch(error){deviceVoiceFailed(text,error?.message||"speak error");}
   },90);
 }
-
 function speakCardText(text,force=false){
   if((!speechSettings.enabled&&!force)||!text)return;
   unlockAppAudio();
-  if(speechSettings.voiceURI===APP_VOICE_VALUE){
-    speakWithAppVoice(text);
+  const profile=selectedAiProfile();
+  if(profile){
+    speechSettings.aiProfile=profile;
+    saveSpeechSettings();
+    speakWithAiVoice(text,profile);
   }else{
     speakWithDeviceVoice(text);
   }
@@ -1212,12 +1389,17 @@ function specimenVoiceTexts(rows){
   return [...new Set(texts.map(normaliseAudioText).filter(Boolean))];
 }
 function persistBackgroundQueue(){
-  localStorage.setItem(APP_VOICE_QUEUE_KEY,JSON.stringify(backgroundVoiceQueue));
+  localStorage.setItem(AI_VOICE_QUEUE_KEY,JSON.stringify(backgroundVoiceQueue));
 }
-function queueAppVoiceTexts(texts,front=false){
-  const existing=new Set(backgroundVoiceQueue.map(appVoiceCacheKey));
+function queueAiVoiceTexts(texts,profileId=activeAiProfile(),front=false){
+  const profile=AI_VOICE_PROFILES[profileId] ? profileId : DEFAULT_AI_PROFILE;
+  const existing=new Set(
+    backgroundVoiceQueue.map(item=>aiVoiceCacheKey(item.text,item.profile))
+  );
   const clean=[...new Set((texts||[]).map(normaliseAudioText).filter(Boolean))]
-    .filter(text=>!existing.has(appVoiceCacheKey(text)));
+    .map(text=>({text,profile}))
+    .filter(item=>!existing.has(aiVoiceCacheKey(item.text,item.profile)));
+
   if(front)backgroundVoiceQueue=[...clean,...backgroundVoiceQueue];
   else backgroundVoiceQueue.push(...clean);
   persistBackgroundQueue();
@@ -1226,11 +1408,12 @@ function queueAppVoiceTexts(texts,front=false){
 function queueSpecimenAudio(rows){
   const texts=specimenVoiceTexts(rows);
   if(!texts.length)return;
-  queueAppVoiceTexts(texts,false);
+  const profile=activeAiProfile();
+  queueAiVoiceTexts(texts,profile,false);
   setSpeechStatus(
     navigator.onLine
-      ? `New specimen saved. Queued ${texts.length} App voice recording${texts.length===1?"":"s"}.`
-      : `New specimen saved. Its App voice recordings will be created when this device is online.`
+      ? `New specimen saved. Queued ${texts.length} ${aiProfileLabel(profile)} recording${texts.length===1?"":"s"}.`
+      : `New specimen saved. Its ${aiProfileLabel(profile)} recordings will be created when this device is online.`
   );
 }
 async function processBackgroundVoiceQueue(){
@@ -1238,34 +1421,44 @@ async function processBackgroundVoiceQueue(){
   backgroundVoiceRunning=true;
   try{
     while(backgroundVoiceQueue.length&&navigator.onLine){
-      const text=backgroundVoiceQueue[0];
+      const item=backgroundVoiceQueue[0];
       try{
-        await requestAppVoiceBlob(text);
+        await requestAiVoiceBlob(item.text,item.profile);
         backgroundVoiceQueue.shift();
         persistBackgroundQueue();
-        if(voicePackProgress){
+        if(
+          voicePackProgress &&
+          voicePackProgress.profile===item.profile
+        ){
           voicePackProgress.done++;
           scheduleCacheCountUpdate();
-          setSpeechStatus(`Caching current list voices: ${voicePackProgress.done}/${voicePackProgress.total}`);
+          setSpeechStatus(
+            `Caching ${aiProfileLabel(item.profile)} list: `+
+            `${voicePackProgress.done}/${voicePackProgress.total}`
+          );
         }
-        await new Promise(resolve=>setTimeout(resolve,120));
+        await new Promise(resolve=>setTimeout(resolve,100));
       }catch(error){
-        setSpeechStatus(error?.message||"Voice cache generation paused.");
+        setSpeechStatus(error?.message||"AI voice cache generation paused.");
         break;
       }
     }
   }finally{
     backgroundVoiceRunning=false;
     if(voicePackProgress&&!backgroundVoiceQueue.length){
-      const total=voicePackProgress.total;
+      const finished={...voicePackProgress};
       voicePackProgress=null;
       scheduleCacheCountUpdate();
-      setSpeechStatus(`Current list voice pack ready: ${total} names saved on this device.`);
+      setSpeechStatus(
+        `${aiProfileLabel(finished.profile)} list pack ready: `+
+        `${finished.total} names saved on this device.`
+      );
     }
   }
 }
 function prefetchFlashAudio(){
-  if(speechSettings.voiceURI!==APP_VOICE_VALUE||!flashDeck.length)return;
+  const profile=selectedAiProfile();
+  if(!profile||!flashDeck.length)return;
   const mode=document.getElementById("flashMode").value;
   const texts=[];
   for(let offset=0;offset<3;offset++){
@@ -1274,24 +1467,30 @@ function prefetchFlashAudio(){
     const sides=flashSides(row,mode);
     texts.push(sides[1],sides[3]);
   }
-  queueAppVoiceTexts(texts,true);
+  queueAiVoiceTexts(texts,profile,true);
 }
 async function cacheCurrentListVoices(){
   await unlockAppAudio();
+  const profile=selectedAiProfile()||activeAiProfile();
   const texts=specimenVoiceTexts(data);
   if(!texts.length)return;
+
   const uncached=[];
   for(const text of texts){
-    if(!(await getCachedAppVoice(text)))uncached.push(text);
+    if(!(await getCachedAiVoice(text,profile)))uncached.push(text);
   }
   if(!uncached.length){
-    setSpeechStatus("The current list voice pack is already saved on this device.");
+    setSpeechStatus(
+      `The current list is already saved in ${aiProfileLabel(profile)} on this device.`
+    );
     scheduleCacheCountUpdate();
     return;
   }
-  voicePackProgress={done:0,total:uncached.length};
-  queueAppVoiceTexts(uncached,true);
-  setSpeechStatus(`Caching current list voices: 0/${uncached.length}`);
+  voicePackProgress={done:0,total:uncached.length,profile};
+  queueAiVoiceTexts(uncached,profile,true);
+  setSpeechStatus(
+    `Caching ${aiProfileLabel(profile)} list: 0/${uncached.length}`
+  );
   scheduleCacheCountUpdate();
 }
 
@@ -1304,11 +1503,16 @@ function renderSpeechControls(){
   toggle.disabled=false;
   test.disabled=false;
   toggle.textContent=speechSettings.enabled?"🔊 Speech on":"🔇 Speech off";
-  toggle.className=speechSettings.enabled?"primary":"secondary";
+  toggle.className=(speechSettings.enabled?"primary":"secondary")+" help-tip";
 
-  let options='<option value="__app_voice__">App voice — recommended</option>';
+  let options='<optgroup label="AI accent voices">';
+  options+=Object.values(AI_VOICE_PROFILES).map(profile=>
+    `<option value="${esc(aiVoiceValue(profile.id))}">${esc(profile.label)}</option>`
+  ).join("");
+  options+='</optgroup>';
+
   if(speechSupported()){
-    options+='<optgroup label="Device voices">';
+    options+='<optgroup label="Device voices — browser dependent">';
     options+='<option value="__device_default__">Device default voice</option>';
     options+=speechVoices.map(v=>
       `<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}</option>`
@@ -1318,7 +1522,7 @@ function renderSpeechControls(){
   select.innerHTML=options;
 
   if(![...select.options].some(o=>o.value===speechSettings.voiceURI)){
-    speechSettings.voiceURI=APP_VOICE_VALUE;
+    speechSettings.voiceURI=aiVoiceValue(activeAiProfile());
     saveSpeechSettings();
   }
   select.value=speechSettings.voiceURI;
@@ -1330,7 +1534,9 @@ if(speechSupported()){
   try{window.speechSynthesis.addEventListener?.("voiceschanged",refreshSpeechVoices);}catch{}
   window.addEventListener("pageshow",scheduleVoiceLoading);
   window.addEventListener("focus",refreshSpeechVoices);
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshSpeechVoices();});
+  document.addEventListener("visibilitychange",()=>{
+    if(!document.hidden)refreshSpeechVoices();
+  });
 }
 window.addEventListener("online",processBackgroundVoiceQueue);
 scheduleVoiceLoading();
@@ -1421,6 +1627,8 @@ document.getElementById("speechToggle").addEventListener("click",async()=>{
 document.getElementById("speechVoice").addEventListener("change",async e=>{
   await unlockAppAudio();
   speechSettings.voiceURI=e.target.value;
+  const profile=selectedAiProfile();
+  if(profile)speechSettings.aiProfile=profile;
   saveSpeechSettings();
   renderSpeechControls();
   speakCardText("Jarrah. Eucalyptus marginata.",true);
@@ -1428,7 +1636,10 @@ document.getElementById("speechVoice").addEventListener("change",async e=>{
 });
 document.getElementById("speechTest").addEventListener("click",async()=>{
   await unlockAppAudio();
-  speakCardText("Jarrah. Eucalyptus marginata. Marri. Corymbia calophylla.",true);
+  speakCardText(
+    "Jarrah. Eucalyptus marginata. Marri. Corymbia calophylla.",
+    true
+  );
 });
 document.getElementById("speechRefresh").addEventListener("click",()=>{
   stopDeviceVoice();
@@ -1436,9 +1647,10 @@ document.getElementById("speechRefresh").addEventListener("click",()=>{
   voicesReady=false;
   refreshSpeechVoices();
   scheduleVoiceLoading();
-  setSpeechStatus("Reloading device voices. App voice remains available.");
+  setSpeechStatus("Reloading device voices. AI accent voices remain available.");
 });
 document.getElementById("speechCacheList").addEventListener("click",cacheCurrentListVoices);
+document.getElementById("speechClearCache").addEventListener("click",clearAllAiVoiceCache);
 
 /* Generic matching game */
 function makeMatchGame(cfg){
@@ -2078,5 +2290,6 @@ document.getElementById("reloadUpdate")?.addEventListener("click",()=>{
 });
 </script>
 
+<div id="uiHelpBubble" class="ui-help-bubble" role="tooltip"></div>
 </body>
 </html>
