@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tree ID Trainer — Native Speech Test</title>
+<style>
+body{font-family:system-ui;margin:0;background:#eef3ed;color:#173126}
+main{max-width:680px;margin:auto;padding:24px}
+.panel{background:white;border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(24,55,38,.12)}
+select,button{width:100%;font:inherit;padding:12px;margin-top:10px;border-radius:10px}
+button{border:0;background:#21633f;color:white;font-weight:800}
+#status{margin-top:14px;line-height:1.45}
+</style>
+</head>
+<body><main><div class="panel">
+<h1>Native Android speech test</h1>
+<p>This page uses the exact speech routine from the old working v5 file, isolated from the main app.</p>
+<select id="voice"></select>
+<button id="test">Test native voice</button>
+<div id="status">Loading voices…</div>
+</div></main>
+<script>
+let voices=[];
+const voiceSelect=document.getElementById("voice");
+const status=document.getElementById("status");
+function loadVoices(){
+  voices=speechSynthesis.getVoices()||[];
+  voiceSelect.innerHTML=voices.map((v,i)=>
+    `<option value="${i}">${v.name} — ${v.lang} (${v.localService?"device":"network"})</option>`
+  ).join("");
+  status.textContent=voices.length?`${voices.length} voices loaded.`:"Waiting for Android voices…";
+}
+speechSynthesis.addEventListener?.("voiceschanged",loadVoices);
+loadVoices();
+[150,400,900,1800,3500].forEach(ms=>setTimeout(loadVoices,ms));
+document.getElementById("test").addEventListener("click",()=>{
+  const voice=voices[Number(voiceSelect.value)]||voices[0];
+  if(!voice){status.textContent="No voice loaded.";return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance("Jarrah. Eucalyptus marginata. Marri. Corymbia calophylla.");
+  u.voice=voice;
+  u.lang=voice.lang||"en-AU";
+  u.rate=.92;
+  u.pitch=1;
+  u.onstart=()=>status.textContent=`Speaking with ${voice.name}…`;
+  u.onend=()=>status.textContent="Native speech completed.";
+  u.onerror=e=>status.textContent=`Native v5 test failed: ${e.error||"unknown"}`;
+  speechSynthesis.speak(u);
+});
+</script></body></html>

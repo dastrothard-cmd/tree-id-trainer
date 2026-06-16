@@ -12,6 +12,9 @@
     },
     "api/visit.js": {
       "maxDuration": 10
+    },
+    "api/speech.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
