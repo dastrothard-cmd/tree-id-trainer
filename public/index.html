@@ -65,10 +65,10 @@ select,input,textarea{width:100%;border:1px solid var(--line);border-radius:11px
 .good{color:#237344}.bad{color:var(--bad)}
 .progressbar{height:9px;background:#dce4dd;border-radius:99px;overflow:hidden;margin:10px 0}
 .progressbar>div{height:100%;background:var(--green2);width:0%;transition:width .25s}
-.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
 .data-table th,.data-table td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-.data-table th{color:var(--muted);position:sticky;top:71px;background:#fff}
-.scroll{overflow:auto;max-height:430px}
+.data-table th{color:var(--muted);position:sticky;top:0;z-index:2;background:#fff;box-shadow:0 1px 0 var(--line)}
+.scroll{overflow:auto;max-height:430px;position:relative}
 code{background:#edf1ed;border-radius:6px;padding:2px 5px}
 .note{background:#fff7dc;border-left:4px solid var(--gold);padding:11px;border-radius:8px;font-size:13px}
 .footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:20px}
@@ -105,6 +105,171 @@ details.ai-settings summary{cursor:pointer;font-weight:800;color:var(--muted)}
 .connection-dot.online{background:#3d9a60}.connection-dot.offline{background:#c05b51}
 @media(max-width:520px){.ai-input-row{grid-template-columns:1fr auto}.ai-input-row .primary{grid-column:1/-1}}
 @media(min-width:650px){.menu-grid{grid-template-columns:1fr 1fr}.match-card{min-height:72px;font-size:16px}}
+
+.skin-panel{margin-top:14px}
+
+/* Theme skins */
+body.theme-mystical{
+  background:
+    radial-gradient(circle at top, rgba(71,98,59,.38), transparent 30%),
+    radial-gradient(circle at 85% 15%, rgba(183,141,74,.10), transparent 18%),
+    radial-gradient(circle at 15% 85%, rgba(71,98,59,.12), transparent 22%),
+    linear-gradient(180deg,#111712 0%,#182019 46%,#0d120e 100%);
+  color:#f0eee4;
+}
+body.theme-mystical header{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 55%),linear-gradient(135deg,#121813 0%,#1c281d 52%,#141a15 100%);
+  border-bottom:1px solid rgba(183,141,74,.18);
+  box-shadow:0 10px 24px rgba(0,0,0,.36);
+}
+body.theme-mystical .subtitle,body.theme-mystical .hint{color:#b8c2b5}
+body.theme-mystical .home-btn{border:1px solid rgba(183,141,74,.28);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));color:#f6f1e5;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 24px rgba(0,0,0,.22)}
+body.theme-mystical .hero{position:relative;overflow:hidden;color:#f7f3ea;border:1px solid rgba(183,141,74,.22);box-shadow:0 18px 34px rgba(0,0,0,.35);background:radial-gradient(circle at 85% 15%, rgba(242,211,145,.15), transparent 22%),linear-gradient(180deg,rgba(255,255,255,.05),transparent 45%),linear-gradient(135deg,#172019 0%,#26422c 36%,#202820 68%,#151a15 100%)}
+body.theme-mystical .hero h2{text-shadow:0 2px 10px rgba(0,0,0,.35)}
+body.theme-mystical .hero p{color:#dbe2d8}
+body.theme-mystical .menu-card,
+body.theme-mystical .panel,
+body.theme-mystical .install-panel,
+body.theme-mystical .ai-panel{
+  border:1px solid rgba(183,141,74,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),transparent 65%),linear-gradient(180deg,#212a22,#1a211b);
+  color:#f0eee4;
+  box-shadow:0 10px 24px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.05);
+}
+body.theme-mystical .menu-card strong,body.theme-mystical .section-title,body.theme-mystical label{color:#f3efe4}
+body.theme-mystical .menu-card span,body.theme-mystical .stat,body.theme-mystical .footer-note{color:#d7d1c5}
+body.theme-mystical select,body.theme-mystical input,body.theme-mystical textarea{background:#111712;border:1px solid rgba(183,141,74,.18);color:#f0eee4;box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
+body.theme-mystical .primary{background:linear-gradient(180deg,#5c7c4f,#35563a);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px rgba(0,0,0,.2)}
+body.theme-mystical .secondary{background:linear-gradient(180deg,#323c32,#242d25);color:#ece7da;border:1px solid rgba(183,141,74,.15)}
+body.theme-mystical .danger{background:linear-gradient(180deg,#6a3c38,#472523);color:#fff1ef}
+body.theme-mystical .stat,body.theme-mystical .chip{background:linear-gradient(180deg,#2c352d,#232b24);border:1px solid rgba(183,141,74,.12);color:#f0ecdf}
+body.theme-mystical .progressbar{background:#111712;border:1px solid rgba(183,141,74,.14)}
+body.theme-mystical .progressbar>div{background:linear-gradient(90deg,#6f8b52,#b78d4a)}
+body.theme-mystical .face{background:radial-gradient(circle at 20% 18%, rgba(255,255,255,.45), transparent 18%),linear-gradient(180deg,rgba(255,255,255,.12),transparent 30%),linear-gradient(180deg,#ece6d7,#d9cfba);color:#2d2417;border:1px solid rgba(183,141,74,.22);box-shadow:0 18px 34px rgba(0,0,0,.35)}
+body.theme-mystical .face .kicker{color:#6b5b40}
+body.theme-mystical .face .mini{color:#6a6357}
+body.theme-mystical .face.back{background:radial-gradient(circle at 80% 15%, rgba(255,214,135,.12), transparent 20%),linear-gradient(180deg,rgba(255,255,255,.05),transparent 45%),linear-gradient(135deg,#18211a 0%,#243426 40%,#171c18 100%);color:#f6f1e7;border-color:rgba(183,141,74,.25)}
+body.theme-mystical .face.back .kicker{color:#cdb88f}
+body.theme-mystical .face.back .mini{color:#d8d2c6}
+body.theme-mystical .match-card{border:1px solid rgba(183,141,74,.16);background:linear-gradient(180deg,#232b24,#191f1a);color:#f0eee4;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+body.theme-mystical .match-card.selected{border-color:#b78d4a;background:linear-gradient(180deg,#46351c,#2d261a)}
+body.theme-mystical .match-card.correct{border-color:#7ea867;background:linear-gradient(180deg,#314331,#243125);color:#dcebd6}
+body.theme-mystical .match-card.wrong{border-color:#b66357;background:linear-gradient(180deg,#5a322d,#40211e)}
+body.theme-mystical .note{background:linear-gradient(180deg,#2c281e,#1f1a14);border-left:4px solid #b78d4a;color:#efe7d4}
+body.theme-mystical .ai-log{border-left:4px solid #729153;background:linear-gradient(180deg,#242d25,#1a221b);color:#ebe6d9}
+body.theme-mystical .ai-log.user{border-left-color:#b78d4a;background:linear-gradient(180deg,#32281b,#221c14)}
+body.theme-mystical .data-table th{background:#171d18;color:#c9d1c5;box-shadow:0 1px 0 rgba(183,141,74,.14)}
+body.theme-mystical .tutorial-number{background:#3b5d3d;color:#fff}
+body.theme-mystical .update-banner{background:#173d2a;color:#fff}
+
+body.theme-journal{
+  background:linear-gradient(180deg,#efe3c4 0%,#e4d1ad 100%);
+  color:#3e2f1f;
+}
+body.theme-journal header{background:linear-gradient(180deg,#8b6b45,#6f5335);color:#fff8ee;border-bottom:1px solid rgba(92,60,28,.24);box-shadow:0 6px 16px rgba(70,48,26,.25)}
+body.theme-journal .subtitle,body.theme-journal .hint{color:#6d5a46}
+body.theme-journal .home-btn{background:#f3e6cb;color:#4d3924;border:1px solid rgba(92,60,28,.18)}
+body.theme-journal .hero{background:linear-gradient(135deg,#786143,#9a7b53);color:#fff9f0;border:1px solid rgba(100,71,41,.18)}
+body.theme-journal .hero p{color:#f6ead6}
+body.theme-journal .panel,body.theme-journal .menu-card,body.theme-journal .install-panel,body.theme-journal .ai-panel{background:linear-gradient(180deg,#f8efd9,#ebdcc0);color:#3e2f1f;border:1px solid rgba(114,82,48,.12);box-shadow:0 8px 20px rgba(70,48,26,.12)}
+body.theme-journal .menu-card strong,body.theme-journal .section-title,body.theme-journal label{color:#4b3925}
+body.theme-journal .menu-card span,body.theme-journal .footer-note{color:#6c5a48}
+body.theme-journal select,body.theme-journal input,body.theme-journal textarea{background:#fffaf0;border:1px solid rgba(114,82,48,.18);color:#3e2f1f}
+body.theme-journal .primary{background:linear-gradient(180deg,#6f8a56,#587043);color:#fff}
+body.theme-journal .secondary{background:#f3e6cb;color:#4d3924;border:1px solid rgba(114,82,48,.15)}
+body.theme-journal .danger{background:#e5b9a9;color:#5e2b1f}
+body.theme-journal .stat,body.theme-journal .chip{background:#f3e6cb;color:#4d3924;border:1px solid rgba(114,82,48,.14)}
+body.theme-journal .progressbar{background:#eadabc}.progressbar>div{}
+body.theme-journal .progressbar>div{background:linear-gradient(90deg,#7f9a64,#c9a35a)}
+body.theme-journal .face{background:linear-gradient(180deg,#fff9ee,#efe2c6);color:#3e2f1f;border:1px solid rgba(114,82,48,.16)}
+body.theme-journal .face .kicker{color:#86653f}
+body.theme-journal .face .mini{color:#6c5a48}
+body.theme-journal .face.back{background:linear-gradient(135deg,#6e5539,#4d3a28);color:#fff7ea;border-color:#6c5237}
+body.theme-journal .face.back .kicker{color:#edd8b1}
+body.theme-journal .face.back .mini{color:#f2e5d1}
+body.theme-journal .match-card{background:#fff8eb;color:#3e2f1f;border:1px solid rgba(114,82,48,.14)}
+body.theme-journal .match-card.selected{background:#f6e4b5;border-color:#c59a4d}
+body.theme-journal .match-card.correct{background:#dce8d0;color:#315135;border-color:#7e9c66}
+body.theme-journal .match-card.wrong{background:#f0cfc4;border-color:#bb7862}
+body.theme-journal .note{background:#fff2d8;color:#5d4c34;border-left:4px solid #c59a4d}
+body.theme-journal .ai-log{background:#f1e6d1;color:#4b3925;border-left:4px solid #8ca36d}
+body.theme-journal .ai-log.user{background:#f7eed8;border-left-color:#c59a4d}
+body.theme-journal .data-table th{background:#efe0c1;color:#624d34;box-shadow:0 1px 0 rgba(114,82,48,.14)}
+body.theme-journal .tutorial-number{background:#8b6b45;color:#fff}
+body.theme-journal .update-banner{background:#6f5335;color:#fff}
+
+body.theme-moonlit{
+  background:linear-gradient(180deg,#0d1624 0%,#16243a 100%);
+  color:#edf4ff;
+}
+body.theme-moonlit header{background:linear-gradient(135deg,#111e31,#1b2f4d);color:#f3f8ff;border-bottom:1px solid rgba(150,190,255,.14);box-shadow:0 8px 20px rgba(0,0,0,.28)}
+body.theme-moonlit .subtitle,body.theme-moonlit .hint{color:#a8bfdc}
+body.theme-moonlit .home-btn{background:rgba(255,255,255,.06);border:1px solid rgba(150,190,255,.18);color:#f3f8ff}
+body.theme-moonlit .hero{background:radial-gradient(circle at 80% 15%, rgba(178,213,255,.16), transparent 25%),linear-gradient(135deg,#20324d,#152339 60%,#101827);color:#f3f8ff;border:1px solid rgba(150,190,255,.14)}
+body.theme-moonlit .hero p{color:#d7e7fb}
+body.theme-moonlit .panel,body.theme-moonlit .menu-card,body.theme-moonlit .install-panel,body.theme-moonlit .ai-panel{background:linear-gradient(180deg,#1b2a42,#142033);color:#edf4ff;border:1px solid rgba(150,190,255,.12);box-shadow:0 10px 24px rgba(0,0,0,.24)}
+body.theme-moonlit .menu-card strong,body.theme-moonlit .section-title,body.theme-moonlit label{color:#f3f8ff}
+body.theme-moonlit .menu-card span,body.theme-moonlit .footer-note{color:#b8cade}
+body.theme-moonlit select,body.theme-moonlit input,body.theme-moonlit textarea{background:#0f1828;border:1px solid rgba(150,190,255,.16);color:#edf4ff}
+body.theme-moonlit .primary{background:linear-gradient(180deg,#4e7fb6,#315b8c);color:#fff}
+body.theme-moonlit .secondary{background:linear-gradient(180deg,#2a3c56,#1d2c42);color:#edf4ff;border:1px solid rgba(150,190,255,.12)}
+body.theme-moonlit .danger{background:linear-gradient(180deg,#81495d,#5d3041);color:#fff4f8}
+body.theme-moonlit .stat,body.theme-moonlit .chip{background:#20314a;color:#edf4ff;border:1px solid rgba(150,190,255,.12)}
+body.theme-moonlit .progressbar{background:#0f1828;border:1px solid rgba(150,190,255,.12)}
+body.theme-moonlit .progressbar>div{background:linear-gradient(90deg,#5a87b6,#9fd8ff)}
+body.theme-moonlit .face{background:linear-gradient(180deg,#f1f6ff,#d9e5f6);color:#1f2a3a;border:1px solid rgba(150,190,255,.18)}
+body.theme-moonlit .face .kicker{color:#48627e}
+body.theme-moonlit .face .mini{color:#5c6f84}
+body.theme-moonlit .face.back{background:linear-gradient(135deg,#183049,#0e1c2e);color:#f3f8ff;border-color:#36547a}
+body.theme-moonlit .face.back .kicker{color:#bcd7f5}
+body.theme-moonlit .face.back .mini{color:#d8e5f5}
+body.theme-moonlit .match-card{background:#16263d;color:#edf4ff;border:1px solid rgba(150,190,255,.14)}
+body.theme-moonlit .match-card.selected{background:#2b4f76;border-color:#9fd8ff}
+body.theme-moonlit .match-card.correct{background:#27424b;color:#dbfbff;border-color:#69c5c8}
+body.theme-moonlit .match-card.wrong{background:#513041;border-color:#d483a3}
+body.theme-moonlit .note{background:#1d2b44;color:#dce9fb;border-left:4px solid #9fd8ff}
+body.theme-moonlit .ai-log{background:#18263c;color:#edf4ff;border-left:4px solid #69c5c8}
+body.theme-moonlit .ai-log.user{background:#20314a;border-left-color:#9fd8ff}
+body.theme-moonlit .data-table th{background:#162339;color:#cfe0f4;box-shadow:0 1px 0 rgba(150,190,255,.12)}
+body.theme-moonlit .tutorial-number{background:#315b8c;color:#fff}
+body.theme-moonlit .update-banner{background:#183049;color:#fff}
+
+body.theme-reddirt{
+  background:linear-gradient(180deg,#241512 0%,#5b3427 100%);
+  color:#f7efe6;
+}
+body.theme-reddirt header{background:linear-gradient(135deg,#3b241d,#6a4030);color:#fff7f2;border-bottom:1px solid rgba(246,188,123,.15);box-shadow:0 8px 20px rgba(0,0,0,.28)}
+body.theme-reddirt .subtitle,body.theme-reddirt .hint{color:#e4c8ba}
+body.theme-reddirt .home-btn{background:rgba(255,255,255,.06);border:1px solid rgba(246,188,123,.18);color:#fff7f2}
+body.theme-reddirt .hero{background:radial-gradient(circle at 82% 15%, rgba(255,220,158,.16), transparent 22%),linear-gradient(135deg,#5f382b,#7c4c36 48%,#3f261f);color:#fff7f2;border:1px solid rgba(246,188,123,.18)}
+body.theme-reddirt .hero p{color:#f4ddd0}
+body.theme-reddirt .panel,body.theme-reddirt .menu-card,body.theme-reddirt .install-panel,body.theme-reddirt .ai-panel{background:linear-gradient(180deg,#5a3427,#43261e);color:#f7efe6;border:1px solid rgba(246,188,123,.14);box-shadow:0 10px 24px rgba(0,0,0,.26)}
+body.theme-reddirt .menu-card strong,body.theme-reddirt .section-title,body.theme-reddirt label{color:#fff5ee}
+body.theme-reddirt .menu-card span,body.theme-reddirt .footer-note{color:#e7cdbf}
+body.theme-reddirt select,body.theme-reddirt input,body.theme-reddirt textarea{background:#2a1814;border:1px solid rgba(246,188,123,.18);color:#f7efe6}
+body.theme-reddirt .primary{background:linear-gradient(180deg,#8b8a53,#6f6f3e);color:#fff}
+body.theme-reddirt .secondary{background:linear-gradient(180deg,#6b4334,#543328);color:#fff1e8;border:1px solid rgba(246,188,123,.14)}
+body.theme-reddirt .danger{background:linear-gradient(180deg,#874338,#672d25);color:#fff3f0}
+body.theme-reddirt .stat,body.theme-reddirt .chip{background:#6a4030;color:#fff1e8;border:1px solid rgba(246,188,123,.12)}
+body.theme-reddirt .progressbar{background:#2a1814;border:1px solid rgba(246,188,123,.14)}
+body.theme-reddirt .progressbar>div{background:linear-gradient(90deg,#a59f5c,#f0bb6a)}
+body.theme-reddirt .face{background:linear-gradient(180deg,#fff1df,#ecd2b8);color:#452e21;border:1px solid rgba(120,78,52,.16)}
+body.theme-reddirt .face .kicker{color:#8a6045}
+body.theme-reddirt .face .mini{color:#6e584b}
+body.theme-reddirt .face.back{background:linear-gradient(135deg,#4d2b23,#2b1a17);color:#fff7f2;border-color:#7b523d}
+body.theme-reddirt .face.back .kicker{color:#efc79c}
+body.theme-reddirt .face.back .mini{color:#f2ddd0}
+body.theme-reddirt .match-card{background:#452820;color:#f7efe6;border:1px solid rgba(246,188,123,.14)}
+body.theme-reddirt .match-card.selected{background:#7a4b2a;border-color:#f0bb6a}
+body.theme-reddirt .match-card.correct{background:#57603a;color:#eaf2dc;border-color:#93a26a}
+body.theme-reddirt .match-card.wrong{background:#6a2e29;border-color:#cc8b7a}
+body.theme-reddirt .note{background:#5b3629;color:#fff0e5;border-left:4px solid #f0bb6a}
+body.theme-reddirt .ai-log{background:#4d2d24;color:#f7efe6;border-left:4px solid #93a26a}
+body.theme-reddirt .ai-log.user{background:#5d392b;border-left-color:#f0bb6a}
+body.theme-reddirt .data-table th{background:#43261e;color:#f0d9c7;box-shadow:0 1px 0 rgba(246,188,123,.14)}
+body.theme-reddirt .tutorial-number{background:#8b5d3b;color:#fff}
+body.theme-reddirt .update-banner{background:#4d2b23;color:#fff}
+
 </style>
 
 <link rel="manifest" href="/app.webmanifest">
@@ -147,6 +312,22 @@ details.ai-settings summary{cursor:pointer;font-weight:800;color:var(--muted)}
       <span class="stat" id="totalAttempts">Attempts: 0</span>
       <span class="stat" id="bestStreak">Best streak: 0</span>
     </div>
+  </div>
+
+  <div class="panel skin-panel">
+    <div class="row">
+      <div>
+        <label for="themeSelect">Skin</label>
+        <select id="themeSelect">
+          <option value="default">Default</option>
+          <option value="mystical">Mystical Forest</option>
+          <option value="journal">Field Journal</option>
+          <option value="moonlit">Moonlit Canopy</option>
+          <option value="reddirt">Red Dirt Camp</option>
+        </select>
+      </div>
+    </div>
+    <div class="hint">Changes the overall look of the app and stays saved on this device.</div>
   </div>
 
   <div class="panel ai-panel">
@@ -1123,6 +1304,32 @@ function initAI(){
 }
 
 
+
+const THEME_KEY = "tree-id-trainer-theme-v1";
+const THEMES = ["default","mystical","journal","moonlit","reddirt"];
+
+function applyTheme(theme){
+  if(!THEMES.includes(theme)) theme = "default";
+  document.body.classList.remove("theme-mystical","theme-journal","theme-moonlit","theme-reddirt");
+  if(theme !== "default"){
+    if(theme === "mystical") document.body.classList.add("theme-mystical");
+    if(theme === "journal") document.body.classList.add("theme-journal");
+    if(theme === "moonlit") document.body.classList.add("theme-moonlit");
+    if(theme === "reddirt") document.body.classList.add("theme-reddirt");
+  }
+  localStorage.setItem(THEME_KEY, theme);
+  const sel = document.getElementById("themeSelect");
+  if(sel) sel.value = theme;
+}
+
+function initTheme(){
+  const saved = localStorage.getItem(THEME_KEY) || "default";
+  applyTheme(saved);
+  const sel = document.getElementById("themeSelect");
+  if(sel) sel.addEventListener("change", e => applyTheme(e.target.value));
+}
+
+
 /* Data */
 function parseLines(text){
   const rows=[];
@@ -1171,7 +1378,7 @@ function renderData(){
   });
 }
 
-renderFamilyFilter();updateCounts();renderStats();renderSpeechControls();initAI();
+renderFamilyFilter();updateCounts();renderStats();renderSpeechControls();initTheme();initAI();
 </script>
 
 <script>
