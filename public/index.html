@@ -461,8 +461,8 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Tree ID Trainer">
-<meta name="tree-id-trainer-version" content="15.15-android-default-speech">
-<meta name="tree-id-trainer-build" content="15.15">
+<meta name="tree-id-trainer-version" content="15.16-android-speech-reset">
+<meta name="tree-id-trainer-build" content="15.16">
 
 </head>
 <body>
@@ -745,7 +745,7 @@ body.theme-reddirt .stat,body.theme-reddirt .chip{background:linear-gradient(180
   </div>
 </section>
 
-<div class="footer-note">Hosted Edition · v15.15 · Your tree list and settings stay in this browser on this device.</div>
+<div class="footer-note">Hosted Edition · v15.16 · Your tree list and settings stay in this browser on this device.</div>
 </main>
 
 <div class="update-banner" id="updateBanner">
@@ -814,36 +814,44 @@ document.getElementById("homeBtn").addEventListener("click",()=>showView("home")
 
 /* Flashcards */
 let flashDeck=[], flashIndex=0, flashKnown=0, flashAgain=0;
-const SPEECH_KEY = "tree-id-trainer-speech-v4";
+const SPEECH_KEY = "tree-id-trainer-speech-v5";
 const previousSpeechSettings = loadJSON(
-  "tree-id-trainer-speech-v2",
-  loadJSON("tree-id-trainer-speech-v1", {})
+  "tree-id-trainer-speech-v4",
+  loadJSON("tree-id-trainer-speech-v2", loadJSON("tree-id-trainer-speech-v1", {}))
 );
 let speechSettings = {
   enabled: !!previousSpeechSettings.enabled,
-  voiceURI: "",
-  rate: Number(previousSpeechSettings.rate) || 0.95
+  voiceURI: previousSpeechSettings.voiceURI || "",
+  rate: Number(previousSpeechSettings.rate) || 0.92
 };
 let speechVoices = [];
 let voicesReady = false;
 let activeUtterance = null;
-let speechStartTimer = null;
-let speechRunId = 0;
+let speechTimer = null;
+let speechAttemptId = 0;
 
 function speechSupported(){
   return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
 }
+function normaliseVoiceLang(lang){
+  return String(lang || "").replace(/_/g,"-");
+}
+function phoneLanguage(){
+  const lang=normaliseVoiceLang(navigator.language || document.documentElement.lang || "en-AU");
+  return lang || "en-AU";
+}
 function voiceLabel(v){
-  const local = v.localService ? "device" : "network";
+  const local=v.localService ? "device" : "network";
   return `${v.name} — ${v.lang || "unknown"} (${local})`;
 }
 function sortVoices(list){
   return [...list].sort((a,b)=>{
-    const aEnglish=String(a.lang||"").toLowerCase().startsWith("en") ? 0 : 1;
-    const bEnglish=String(b.lang||"").toLowerCase().startsWith("en") ? 0 : 1;
+    const aEnglish=/^en[-_]/i.test(String(a.lang||"")) ? 0 : 1;
+    const bEnglish=/^en[-_]/i.test(String(b.lang||"")) ? 0 : 1;
     const aLocal=a.localService ? 0 : 1;
     const bLocal=b.localService ? 0 : 1;
-    return aEnglish-bEnglish || aLocal-bLocal || String(a.lang).localeCompare(String(b.lang)) || a.name.localeCompare(b.name);
+    return aEnglish-bEnglish || aLocal-bLocal ||
+      String(a.lang).localeCompare(String(b.lang)) || a.name.localeCompare(b.name);
   });
 }
 function selectedVoice(){
@@ -854,8 +862,8 @@ function saveSpeechSettings(){
   localStorage.setItem(SPEECH_KEY,JSON.stringify(speechSettings));
 }
 function setSpeechStatus(text){
-  const status=document.getElementById("speechStatus");
-  if(status)status.textContent=text;
+  const el=document.getElementById("speechStatus");
+  if(el)el.textContent=text;
 }
 function refreshSpeechVoices(){
   if(!speechSupported())return;
@@ -871,87 +879,98 @@ function refreshSpeechVoices(){
 }
 function scheduleVoiceLoading(){
   refreshSpeechVoices();
-  [100,300,700,1400,2800,5000].forEach(ms=>setTimeout(refreshSpeechVoices,ms));
+  [120,350,800,1600,3000,5000].forEach(ms=>setTimeout(refreshSpeechVoices,ms));
 }
 function describeVoiceState(){
   if(!speechSupported())return "Speech is unavailable in this browser.";
-  const chosen=selectedVoice();
-  if(chosen)return `Using: ${voiceLabel(chosen)}`;
-  if(!voicesReady)return "Using the phone default voice. Android is still loading its named voice list.";
-  return "Using the phone default voice — recommended on Android.";
+  const voice=selectedVoice();
+  if(voice)return `Using: ${voiceLabel(voice)}`;
+  if(!voicesReady)return "Phone default voice is ready; Android is still loading its named voices.";
+  return "Using Phone default voice.";
 }
-function releaseUtterance(runId){
-  if(runId!==speechRunId)return;
-  activeUtterance=null;
-  if(!document.getElementById("speechStatus")?.textContent.startsWith("Speech failed")){
-    setSpeechStatus(describeVoiceState());
+function buildUtterance(text,mode,voice){
+  const utterance=new SpeechSynthesisUtterance();
+  utterance.text=String(text);
+
+  if(mode==="selected" && voice){
+    utterance.voice=voice;
+    utterance.lang=normaliseVoiceLang(voice.lang) || phoneLanguage();
+    utterance.rate=Number(speechSettings.rate)||0.92;
+    utterance.pitch=1;
+    utterance.volume=1;
+  }else if(mode==="default"){
+    utterance.lang=phoneLanguage();
+    utterance.rate=Number(speechSettings.rate)||0.92;
+    utterance.pitch=1;
+    utterance.volume=1;
   }
+  // "raw" deliberately leaves voice, lang, rate, pitch and volume untouched.
+  return utterance;
 }
-function startSpeechAttempt(text,voice,allowDefaultRetry){
-  if(!speechSupported()||!text)return;
+function runSpeechAttempt(text,mode,voice,attemptId){
+  if(attemptId!==speechAttemptId || !speechSupported())return;
   const synth=window.speechSynthesis;
-  const runId=++speechRunId;
-  const utterance=new SpeechSynthesisUtterance(String(text));
+  const utterance=buildUtterance(text,mode,voice);
   activeUtterance=utterance;
 
-  // Leaving voice and lang unset is the most compatible Android path.
-  if(voice)utterance.voice=voice;
-  utterance.rate=Math.min(1.4,Math.max(0.65,Number(speechSettings.rate)||0.95));
-  utterance.pitch=1;
-  utterance.volume=1;
-
   utterance.onstart=()=>{
-    if(runId===speechRunId)setSpeechStatus(voice ? `Speaking with ${voice.name}…` : "Speaking with phone default voice…");
+    if(attemptId!==speechAttemptId)return;
+    if(mode==="selected" && voice)setSpeechStatus(`Speaking with ${voice.name}…`);
+    else if(mode==="default")setSpeechStatus(`Speaking with phone default voice (${phoneLanguage()})…`);
+    else setSpeechStatus("Speaking with raw Android default voice…");
   };
-  utterance.onend=()=>releaseUtterance(runId);
-  utterance.onerror=event=>{
-    if(runId!==speechRunId)return;
-    const code=event?.error || "unknown";
+  utterance.onend=()=>{
+    if(attemptId!==speechAttemptId)return;
     activeUtterance=null;
+    setSpeechStatus(describeVoiceState());
+  };
+  utterance.onerror=event=>{
+    if(attemptId!==speechAttemptId)return;
+    activeUtterance=null;
+    const code=event?.error || "unknown";
 
-    if(voice && allowDefaultRetry && code!=="canceled" && code!=="interrupted"){
-      speechSettings.voiceURI="";
-      saveSpeechSettings();
-      renderSpeechControls();
+    if(code==="canceled" || code==="interrupted")return;
+
+    if(mode==="selected"){
       setSpeechStatus("Selected voice failed. Retrying with phone default voice…");
-      speechStartTimer=setTimeout(()=>startSpeechAttempt(text,null,false),180);
+      speechTimer=setTimeout(()=>runSpeechAttempt(text,"default",null,attemptId),350);
       return;
     }
-
-    if(code==="canceled" || code==="interrupted"){
-      setSpeechStatus(describeVoiceState());
+    if(mode==="default"){
+      setSpeechStatus("Phone default failed. Retrying with Android’s raw speech defaults…");
+      speechTimer=setTimeout(()=>runSpeechAttempt(text,"raw",null,attemptId),350);
       return;
     }
-    setSpeechStatus(`Speech failed (${code}). Try Phone default voice, then tap Test selected voice again.`);
+    setSpeechStatus(`Android speech engine failed (${code}) after all three methods.`);
   };
 
-  try{synth.resume();}catch{}
   try{
     synth.speak(utterance);
   }catch(error){
     activeUtterance=null;
-    setSpeechStatus(`Speech failed (${error?.message || "speak error"}).`);
+    setSpeechStatus(`Speech call failed (${error?.message || "unknown error"}).`);
   }
 }
 function speakCardText(text,force=false){
   if((!speechSettings.enabled&&!force)||!speechSupported()||!text)return;
-  clearTimeout(speechStartTimer);
+
+  clearTimeout(speechTimer);
   refreshSpeechVoices();
+
   const synth=window.speechSynthesis;
   const voice=selectedVoice();
+  const mode=voice ? "selected" : "default";
+  const attemptId=++speechAttemptId;
 
-  // Never cancel an idle engine. On Android, cancel()+speak() in the same instant can fail.
-  if(synth.speaking || synth.pending){
-    try{synth.cancel();}catch{}
-    speechStartTimer=setTimeout(()=>startSpeechAttempt(text,voice,true),220);
-  }else{
-    // Direct call remains inside the user's tap event for Chrome's activation requirement.
-    startSpeechAttempt(text,voice,true);
-  }
+  // Android can retain a dead or failed queue. Always clear it, then wait.
+  try{synth.cancel();}catch{}
+  activeUtterance=null;
+  setSpeechStatus("Resetting Android speech engine…");
+  speechTimer=setTimeout(()=>runSpeechAttempt(String(text),mode,voice,attemptId),320);
 }
 function stopSpeech(){
-  clearTimeout(speechStartTimer);
-  speechRunId++;
+  clearTimeout(speechTimer);
+  speechAttemptId++;
   activeUtterance=null;
   if(speechSupported()){
     try{window.speechSynthesis.cancel();}catch{}
@@ -982,7 +1001,7 @@ function renderSpeechControls(){
   toggle.className=speechSettings.enabled?"primary":"secondary";
 
   voiceSelect.innerHTML=
-    '<option value="">Phone default voice — recommended</option>'+
+    '<option value="">Phone default voice</option>'+
     speechVoices.map(v=>`<option value="${esc(v.voiceURI)}">${esc(voiceLabel(v))}</option>`).join("");
   voiceSelect.value=speechSettings.voiceURI || "";
 
@@ -1085,13 +1104,16 @@ document.getElementById("speechTest").addEventListener("click",()=>{
   speakCardText("Jarrah. Eucalyptus marginata. Marri. Corymbia calophylla.",true);
 });
 document.getElementById("speechRefresh").addEventListener("click",()=>{
+  clearTimeout(speechTimer);
+  speechAttemptId++;
+  try{window.speechSynthesis.cancel();}catch{}
   speechVoices=[];
   voicesReady=false;
   speechSettings.voiceURI="";
   saveSpeechSettings();
   renderSpeechControls();
   scheduleVoiceLoading();
-  setSpeechStatus("Reloading installed voices. Phone default voice is ready now.");
+  setSpeechStatus("Speech engine reset. Phone default voice selected.");
 });
 
 /* Generic matching game */
